@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS ขยายขนาดฟ้อนท์ทุกส่วนให้ใหญ่และชัดเจนขึ้น
+# ตกแต่ง CSS ปรับฟ้อนท์ให้ใหญ่ขึ้นและเปลี่ยนสีหัวข้อฟอร์มเป็นสีขาว
 st.markdown("""
     <style>
     /* ขยายฟ้อนท์โดยรวม */
@@ -53,7 +53,7 @@ st.markdown("""
         border: none;
         padding: 0.8rem;
         font-size: 20px !important;
-        transition: background-color: 0.2s;
+        transition: background-color 0.2s;
     }
     .stButton>button:hover {
         background-color: #c92a2a;
@@ -68,15 +68,16 @@ st.markdown("""
         padding-bottom: 10px;
     }
     
-    /* 🔍 ขยายขนาดตัวหนังสือหัวข้อ Label ของ Streamlit ให้ใหญ่ขึ้นชัดเจน */
+    /* 🔍 ปรับฟ้อนท์หัวข้อ Label ของ Streamlit ให้เป็นสีขาวและตัวใหญ่ชัดเจน */
     .stSelectbox label, .stNumberInput label, .stRadio label, .stTextInput label {
         font-size: 20px !important;
         font-weight: bold !important;
-        color: #ff8787 !important;
+        color: #ffffff !important;
     }
     /* ขยายขนาดข้อความตัวเลือกข้างใน Selectbox และ Radio */
     .stSelectbox div[data-baseweb="select"] span, .stRadio div label p {
         font-size: 19px !important;
+        color: #ffffff !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -187,11 +188,11 @@ with order_col2:
         total_price = 0.0
         for idx, item in enumerate(st.session_state.cart, 1):
             name, qty, u_price, item_tot = item
-            st.markdown(f"<p style='font-size: 19px;'><b>{idx}.</b> {name} x {qty} = <b>{item_tot:,.2f} บาท</b></p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size: 19px; color: #ffffff;'><b>{idx}.</b> {name} x {qty} = <b>{item_tot:,.2f} บาท</b></p>", unsafe_allow_html=True)
             total_price += item_tot
             
         st.write(f"---")
-        st.markdown(f"<p style='font-size: 22px;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
         
         if st.button("🗑️ ล้างตะกร้าสินค้า"):
             st.session_state.cart = []
@@ -218,7 +219,7 @@ if st.session_state.cart:
     final_price = total_price - disc_amount
     
     st.success(f"🎁 **ข้อความจากร้าน:** {luck_msg}")
-    st.markdown(f"<p style='font-size: 20px;'>🏷️ <b>ส่วนลดที่คุณได้รับ:</b> {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size: 20px; color: #ffffff;'>🏷️ <b>ส่วนลดที่คุณได้รับ:</b> {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)</p>", unsafe_allow_html=True)
     st.markdown(f"<h2 style='color: #ff6b6b;'>✨ ยอดสุทธิที่ต้องชำระ: <b>{final_price:,.2f} บาท</b></h2>", unsafe_allow_html=True)
     
     pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"))
@@ -230,7 +231,7 @@ if st.session_state.cart:
         
         if "1." in pay_choice:
             st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
-            st.markdown("<p style='font-size: 19px;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
+            st.markdown("<p style='font-size: 19px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
             st.markdown(f"<p style='font-size: 22px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {final_price:,.2f} บาท</b></p>", unsafe_allow_html=True)
             
             # --- สร้าง QR Code พร้อมเพย์ขนาดใหญ่พิเศษ ---
@@ -241,8 +242,4 @@ if st.session_state.cart:
             
             col_q1, col_q2, col_q3 = st.columns([1, 1.2, 1])
             with col_q2:
-                st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=320)
-        else:
-            price_floor = math.floor(final_price)
-            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-            st.markdown(f"<p style='font-size: 19px;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
+                st.image
