@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS (เอาการ์ดครอบหน้าล็อกอินออก ให้แสดงผลแบบคลีนๆ)
+# ตกแต่ง CSS เพิ่มเติมเพื่อขยายหัวข้อและจัดขนาดความพอดี
 st.markdown("""
     <style>
     .product-card {
@@ -55,6 +55,15 @@ st.markdown("""
         background-color: #c92a2a;
         color: white;
     }
+    /* ขยายหัวข้อฟอร์มและตะกร้าให้ใหญ่และเด่นชัดขึ้น */
+    .big-section-title {
+        font-size: 24px !important;
+        font-weight: 700 !important;
+        color: #ff8787 !important;
+        margin-bottom: 15px !important;
+        border-bottom: 2px solid #333;
+        padding-bottom: 8px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -63,12 +72,11 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br><br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
-        # แสดงหัวข้อตรงๆ แบบไม่มีกล่องสี่เหลี่ยมสีๆ มาครอบ
-        st.markdown("<h2 style='text-align: center; color: #ff6b6b; margin-bottom: 5px;'>🌹 ร้าน Butsaban</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #aaa; font-size: 14px; margin-bottom: 25px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #ff6b6b; margin-bottom: 5px; font-size: 32px;'>🌹 ร้าน Butsaban</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #aaa; font-size: 15px; margin-bottom: 25px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
         
         with st.form("login_form"):
             username = st.text_input("ชื่อผู้ใช้งาน (Username)")
@@ -96,8 +104,8 @@ if st.sidebar.button("🚪 ออกจากระบบ"):
     st.rerun()
 
 # หัวข้อต้อนรับในหน้าหลัก
-st.markdown("<h1 style='text-align: center; color: #ff6b6b;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #aaa; margin-bottom: 30px;'>ยินดีต้อนรับสู่ร้านดอกไม้แฮนด์เมดเพื่อคนพิเศษของคุณ</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #ff6b6b; font-size: 36px;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #aaa; margin-bottom: 30px; font-size: 16px;'>ยินดีต้อนรับสู่ร้านดอกไม้แฮนด์เมดเพื่อคนพิเศษของคุณ</p>", unsafe_allow_html=True)
 
 st.write("---")
 
@@ -112,7 +120,7 @@ products = {
 }
 
 # 2. แสดงรายการสินค้าแบบการ์ด (Grid View)
-st.subheader("📋 เมนูสินค้าแนะนำ")
+st.markdown('<div class="big-section-title">📋 เมนูสินค้าแนะนำ</div>', unsafe_allow_html=True)
 cols = st.columns(3)
 
 product_keys = list(products.keys())
@@ -137,7 +145,7 @@ if "cart" not in st.session_state:
 order_col1, order_col2 = st.columns([1, 1])
 
 with order_col1:
-    st.subheader("🛒 ฟอร์มสั่งซื้อสินค้า")
+    st.markdown('<div class="big-section-title">🛒 ฟอร์มสั่งซื้อสินค้า</div>', unsafe_allow_html=True)
     product_choice = st.selectbox(
         "เลือกรายการสินค้า",
         options=list(products.keys()),
@@ -154,7 +162,7 @@ with order_col1:
         st.success(f"เพิ่ม '{p_name}' จำนวน {quantity} กระถาง ลงในตะกร้าแล้ว!")
 
 with order_col2:
-    st.subheader("🛍️ ตะกร้าสินค้าของคุณ")
+    st.markdown('<div class="big-section-title">🛍️ ตะกร้าสินค้าของคุณ</div>', unsafe_allow_html=True)
     if not st.session_state.cart:
         st.info("ยังไม่มีสินค้าในตะกร้า เลือกสินค้าทางซ้ายมือได้เลยครับ")
     else:
@@ -174,7 +182,7 @@ with order_col2:
 # 4. ส่วนสรุปยอด ชำระเงิน และระบบสุ่มส่วนลด
 if st.session_state.cart:
     st.markdown("---")
-    st.subheader("💳 สรุปยอดชำระเงิน & ส่วนลดพิเศษ")
+    st.markdown('<div class="big-section-title">💳 สรุปยอดชำระเงิน & ส่วนลดพิเศษ</div>', unsafe_allow_html=True)
     
     total_price = sum(item[3] for item in st.session_state.cart)
     
@@ -195,7 +203,7 @@ if st.session_state.cart:
     st.write(f"🏷️ **ส่วนลดที่คุณได้รับ:** {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)")
     st.markdown(f"### ✨ ยอดสุทธิที่ต้องชำระ: **{final_price:,.2f} บาท**")
     
-    pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร / พร้อมเพย์", "2. เงินสด"))
+    pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"))
     
     if st.button("✅ ยืนยันการสั่งซื้อสินค้า"):
         now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
