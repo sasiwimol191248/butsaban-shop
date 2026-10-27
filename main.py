@@ -6,10 +6,10 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS ขยายขนาดฟ้อนท์และปรับแต่งหน้าตาให้ตัวใหญ่ขึ้นชัดเจน
+# ตกแต่ง CSS ขยายขนาดฟ้อนท์ทุกส่วนให้ใหญ่และชัดเจนขึ้น
 st.markdown("""
     <style>
-    /* ขยายฟ้อนท์โดยรวมและหัวข้อต่างๆ */
+    /* ขยายฟ้อนท์โดยรวม */
     html, body, [class*="css"] {
         font-size: 18px !important;
     }
@@ -53,7 +53,7 @@ st.markdown("""
         border: none;
         padding: 0.8rem;
         font-size: 20px !important;
-        transition: background-color 0.2s;
+        transition: background-color: 0.2s;
     }
     .stButton>button:hover {
         background-color: #c92a2a;
@@ -67,9 +67,16 @@ st.markdown("""
         border-bottom: 3px solid #444;
         padding-bottom: 10px;
     }
-    /* ขยายขนาดตัวหนังสือใน input และ selectbox */
-    .stTextInput input, .stSelectbox select, .stNumberInput input {
-        font-size: 18px !important;
+    
+    /* 🔍 ขยายขนาดตัวหนังสือหัวข้อ Label ของ Streamlit ให้ใหญ่ขึ้นชัดเจน */
+    .stSelectbox label, .stNumberInput label, .stRadio label, .stTextInput label {
+        font-size: 20px !important;
+        font-weight: bold !important;
+        color: #ff8787 !important;
+    }
+    /* ขยายขนาดข้อความตัวเลือกข้างใน Selectbox และ Radio */
+    .stSelectbox div[data-baseweb="select"] span, .stRadio div label p {
+        font-size: 19px !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -230,7 +237,6 @@ if st.session_state.cart:
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)")
             qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
-            # ปรับขนาด QR Code ให้ใหญ่ขึ้นเป็น 320x320 พิกเซล
             qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=320x320&data={qr_text}"
             
             col_q1, col_q2, col_q3 = st.columns([1, 1.2, 1])
