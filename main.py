@@ -211,7 +211,7 @@ if st.session_state.cart:
     if st.button("✅ ยืนยันการสั่งซื้อสินค้า"):
         now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         st.balloons()
-        st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกรายการเมื่อ: {now}")
+        st.success(f"สั่งซื้อสำเร็จ! บันทึกรายการเมื่อ: {now}")
         
         if "1." in pay_choice:
             st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
@@ -234,4 +234,11 @@ if st.session_state.cart:
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("📲 [จำลอง] กดจำลองว่าสแกนจ่ายเงินสำเร็จแล้ว"):
                 st.balloons()
-                st.success("🎉 **
+                st.success("ขอบคุณที่ชำระเงินค่ะ! ทางร้านได้รับยอดโอนเรียบร้อยแล้ว เตรียมจัดส่งช่อดอกไม้แสนสวยให้ทันทีค่า")
+                
+            st.info("*(รบกวนส่งสลิปหลักฐานการโอนเงินให้ทางร้านด้วยนะคะ)*")
+        else:
+            price_floor = math.floor(final_price)
+            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
+            st.write(f"🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท")
+            st.write(f"🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: **{price_floor} บาท**")
