@@ -3,15 +3,12 @@ import datetime
 import math
 import random
 
-# ตั้งค่าหน้าเว็บให้ดูกว้างและสบายตาขึ้น
+# ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่งหน้าตาเว็บไซต์ด้วย CSS เพิ่มความพรีเมียม
+# ตกแต่ง CSS เพิ่มความพรีเมียม
 st.markdown("""
     <style>
-    .main {
-        background-color: #faf9f6;
-    }
     .stButton>button {
         width: 100%;
         background-color: #d9534f;
@@ -37,16 +34,15 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 1. แสดงรูปภาพแบนเนอร์หลัก (เต็มตา สวยงาม)
+# 1. แสดงรูปภาพแบนเนอร์หลัก (ดึงรูป Copy.png มาแสดงตรงหัวเว็บ)
 try:
     st.image("Copy.png", use_container_width=True)
 except Exception:
-    st.markdown("<h1 style='text-align: center; color: #b30000;'>Butsaban.</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align: center; color: #800000;'>ร้านดอกไม้ลวดกำมะหยี่</h3>", unsafe_allow_html=True)
+    st.error("⚠️ ไม่พบไฟล์รูปภาพ 'Copy.png' กรุณาอัปโหลดไฟล์รูปภาพขึ้นไปไว้ที่ GitHub ในโฟลเดอร์เดียวกันกับไฟล์ app.py ครับ")
 
 st.markdown("<br>", unsafe_allow_html=True)
-st.markdown("<h2 style='text-align: center; color: #800000;'>🌸 ยินดีต้อนรับสู่ Butsaban Floral Shop 🌸</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #666;'>งานแฮนด์เมดลวดกำมะหยี่พรีเมียม มอบให้คนพิเศษในทุกโอกาสสำคัญ</p>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: #d9534f;'>🌸 ยินดีต้อนรับสู่ Butsaban Floral Shop 🌸</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #888;'>งานแฮนด์เมดลวดกำมะหยี่พรีเมียม มอบให้คนพิเศษในทุกโอกาสสำคัญ</p>", unsafe_allow_html=True)
 st.write("---")
 
 # 2. ข้อมูลรายการสินค้า
@@ -58,7 +54,7 @@ products = {
     "5": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
-# 3. แสดงรายการสินค้าแบบแบ่งคอลัมน์ (Modern Grid View)
+# 3. แสดงรายการสินค้าแบบการ์ด (Grid View)
 st.subheader("📋 เมนูสินค้าแนะนำ")
 cols = st.columns(3)
 
@@ -68,7 +64,7 @@ for i, key in enumerate(product_keys):
     with cols[i % 3]:
         st.markdown(f"""
             <div class="product-card">
-                <h3>{item['name']}</h3>
+                <h3 style="color: #333;">{item['name']}</h3>
                 <p style="color: #666; font-size: 14px;">{item['desc']}</p>
                 <h4 style="color: #d9534f;">฿{item['price']} / กระถาง</h4>
                 <p style="font-size: 12px; color: #999;">รหัสสินค้า: #{key}</p>
@@ -81,7 +77,6 @@ st.markdown("---")
 if "cart" not in st.session_state:
     st.session_state.cart = []
 
-# แบ่งหน้าจอการสั่งซื้อเป็น 2 ฝั่ง (ฝั่งเลือกสินค้า กับ ฝั่งตะกร้า)
 order_col1, order_col2 = st.columns([1, 1])
 
 with order_col1:
@@ -126,7 +121,6 @@ if st.session_state.cart:
     
     total_price = sum(item[3] for item in st.session_state.cart)
     
-    # สุ่มส่วนลด
     if "discount_percent" not in st.session_state:
         st.session_state.discount_percent = random.randint(5, 20)
         st.session_state.luck_msg = random.choice([
@@ -144,7 +138,6 @@ if st.session_state.cart:
     st.write(f"🏷️ **ส่วนลดที่คุณได้รับ:** {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)")
     st.markdown(f"### ✨ ยอดสุทธิที่ต้องชำระ: **{final_price:,.2f} บาท**")
     
-    # ช่องทางการชำระเงิน
     pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร / พร้อมเพย์", "2. เงินสด"))
     
     if st.button("✅ ยืนยันการสั่งซื้อสินค้า"):
@@ -157,3 +150,11 @@ if st.session_state.cart:
             st.write("🔹 ธนาคาร: กรุงไทย (KTB)")
             st.write("🔹 เลขที่บัญชี: 123-0-56789-0")
             st.write("🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่")
+            st.write("🔹 พร้อมเพย์: 063-472-9594")
+            st.write(f"🔹 **ยอดโอนสุทธิ: {final_price:,.2f} บาท**")
+            st.info("*(รบกวนส่งสลิปหลักฐานการโอนเงินให้ทางร้านด้วยนะคะ)*")
+        else:
+            price_floor = math.floor(final_price)
+            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
+            st.write(f"🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท")
+            st.write(f"🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: **{price_floor} บาท**")
