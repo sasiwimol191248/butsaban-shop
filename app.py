@@ -57,7 +57,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 st.write("---")
 
-# 2. ข้อมูลรายการสินค้า (เพิ่มทิวลิปเข้ามาแล้วครับ)
+# 2. ข้อมูลรายการสินค้า
 products = {
     "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
     "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
@@ -149,6 +149,8 @@ if st.session_state.cart:
     
     st.success(f"🎁 **ข้อความจากร้าน:** {luck_msg}")
     st.write(f"🏷️ **ส่วนลดที่คุณได้รับ:** {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)")
+    
+    # แก้ไขจุดที่ผิดพลาดตรงนี้ให้ถูกต้องเรียบร้อยแล้ว
     st.markdown(f"### ✨ ยอดสุทธิที่ต้องชำระ: **{final_price:,.2f} บาท**")
     
     pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร / พร้อมเพย์", "2. เงินสด"))
@@ -169,4 +171,5 @@ if st.session_state.cart:
         else:
             price_floor = math.floor(final_price)
             st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-            st.write(f"🔹 ยอดชำระสุทธิ: {final
+            st.write(f"🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท")
+            st.write(f"🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: **{price_floor} บาท**")
