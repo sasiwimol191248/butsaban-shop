@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS เพิ่มเติมเพื่อขยายหัวข้อและจัดขนาดความพอดี
+# ตกแต่ง CSS สำหรับจัดเลย์เอาต์รูปช่อดอกไม้ทับกล่องข้อความ (Overlap Effect)
 st.markdown("""
     <style>
     .product-card {
@@ -63,6 +63,24 @@ st.markdown("""
         border-bottom: 2px solid #333;
         padding-bottom: 8px;
     }
+    
+    /* จัดสไตล์กล่องหัวเรื่องให้ช่อดอกไม้ยื่นทับ */
+    .hero-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+        margin-bottom: 40px;
+    }
+    .hero-bouquet {
+        margin-right: -70px; /* ดึงรูปช่อดอกไม้ให้เหลื่อมไปทางขวา */
+        z-index: 10; /* ให้รูปช่อดอกไม้ทับอยู่ด้านบน */
+        max-width: 380px;
+    }
+    .hero-banner {
+        max-width: 600px;
+        z-index: 1;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -102,9 +120,20 @@ if st.sidebar.button("🚪 ออกจากระบบ"):
     st.session_state.cart = []
     st.rerun()
 
-# หัวข้อต้อนรับในหน้าหลัก
-st.markdown("<h1 style='text-align: center; color: #ff6b6b; font-size: 36px;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #aaa; margin-bottom: 30px; font-size: 16px;'>ยินดีต้อนรับสู่ร้านดอกไม้แฮนด์เมดเพื่อคนพิเศษของคุณ</p>", unsafe_allow_html=True)
+# แสดงผลภาพหัวเว็บแบบเหลื่อมทับกัน (Bouquet overlapping Banner)
+try:
+    col_h1, col_h2, col_h3 = st.columns([1, 2.2, 1])
+    with col_h2:
+        h_col1, h_col2 = st.columns([1, 1.3])
+        with h_col1:
+            st.image("bouquet.png", use_container_width=True)
+        with h_col2:
+            st.markdown("<div style='margin-left: -40px; margin-top: 25px;'>", unsafe_allow_html=True)
+            st.image("banner.png", use_container_width=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+except:
+    # เผื่อกรณีไฟล์รูปยังอัปโหลดไม่เสร็จ ให้แสดงข้อความสำรองแทน
+    st.markdown("<h1 style='text-align: center; color: #ff6b6b; font-size: 36px;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
 
 st.write("---")
 
@@ -232,4 +261,4 @@ if st.session_state.cart:
             price_floor = math.floor(final_price)
             st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
             st.write(f"🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท")
-            st
+            st.write(f"🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: **{price_floor} บาท**")
