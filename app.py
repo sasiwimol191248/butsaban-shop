@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS เพิ่มขนาดตัวหนังสือให้ใหญ่ขึ้นและจัดแต่งกรอบแบนเนอร์ให้พอดี
+# ตกแต่ง CSS เพิ่มความสวยงาม
 st.markdown("""
     <style>
     @keyframes bannerFadeIn {
@@ -31,7 +31,6 @@ st.markdown("""
         text-align: center;
         margin-bottom: 20px;
     }
-    /* ปรับขนาดตัวหนังสือในการ์ดสินค้าให้ใหญ่และชัดเจนขึ้น */
     .product-title {
         font-size: 20px !important;
         font-weight: bold;
@@ -65,6 +64,43 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
+# 0. ระบบตรวจสอบการเข้าสู่ระบบ (Login System)
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    st.markdown("<h2 style='text-align: center; color: #d9534f;'>🌹 เข้าสู่ระบบร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #666;'>กรุณาเข้าสู่ระบบเพื่อเข้าชมสินค้าและสั่งซื้อสินค้า</p>", unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        with st.form("login_form"):
+            username = st.text_input("ชื่อผู้ใช้งาน (Username)")
+            password = st.text_input("รหัสผ่าน (Password)", type="password")
+            submit_login = st.form_submit_button("🔑 เข้าสู่ระบบ")
+            
+            if submit_login:
+                # ตั้งค่ารหัสผ่านจำลอง (สามารถใช้อะไรก็ได้ หรือกำหนดตายตัว เช่น user / 1234)
+                if username != "" and password != "":
+                    st.session_state.logged_in = True
+                    st.session_state.username = username
+                    st.success("เข้าสู่ระบบสำเร็จ! กำลังพาท่านเข้าสู่เว็บไซต์...")
+                    st.rerun()
+                else:
+                    st.error("⚠️ กรุณากรอกชื่อผู้ใช้งานและรหัสผ่านให้ครบถ้วน")
+        
+        st.info("💡 **คำแนะนำเบื้องต้น:** สามารถกรอกชื่ออะไรก็ได้ (เช่น `customer` หรือ `admin`) และใส่รหัสผ่านอะไรก็ได้เพื่อเข้าสู่ระบบทดลองครับ")
+    
+    # หยุดการทำงานหน้าอื่นไว้ก่อนจนกว่าจะ Login สำเร็จ
+    st.stop()
+
+# --- ส่วนของเว็บไซต์หลัก (หลัง Log-in สำเร็จแล้ว) ---
+st.sidebar.success(f"👤 เข้าสู่ระบบโดย: **{st.session_state.username}**")
+if st.sidebar.button("🚪 ออกจากระบบ (Logout)"):
+    st.session_state.logged_in = False
+    st.session_state.cart = []
+    st.rerun()
 
 # 1. แสดงรูปแบนเนอร์ช่อกุหลาบพร้อมเอฟเฟกต์เด้งขึ้นมาตอนเข้าเว็บ
 st.markdown('<div class="banner-container">', unsafe_allow_html=True)
