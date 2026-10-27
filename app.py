@@ -9,9 +9,16 @@ st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลว�
 # ตกแต่ง CSS ให้หน้าเว็บดูสวยงามพรีเมียม
 st.markdown("""
     <style>
-    @keyframes fadeIn {
+    @keyframes bannerFadeIn {
         from { opacity: 0; transform: translateY(-15px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+    .main-banner {
+        animation: bannerFadeIn 1s ease-out;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
     }
     .product-card {
         padding: 20px;
@@ -69,7 +76,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 0. ระบบตรวจสอบการเข้าสู่ระบบ (Login System)
+# 0. ระบบตรวจสอบการเข้าสู่ระบบ (Login System) - หน้านี้ไม่มีรูป ไม่มีกรอบขาวกวนใจ
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
@@ -100,20 +107,24 @@ if not st.session_state.logged_in:
     
     st.stop()
 
-# --- ส่วนของเว็บไซต์หลัก (แสดงผลเฉพาะหลัง Log-in สำเร็จแล้วเท่านั้น) ---
+# --- ส่วนของเว็บไซต์หลัก (หลัง Log-in สำเร็จแล้ว จะแสดงรูปแบนเนอร์สวยๆ เต็มตา) ---
 st.sidebar.success(f"👤 ผู้ใช้งาน: **{st.session_state.username}**")
 if st.sidebar.button("🚪 ออกจากระบบ"):
     st.session_state.logged_in = False
     st.session_state.cart = []
     st.rerun()
 
-# หัวข้อต้อนรับในหน้าหลัก
-st.markdown("<h1 style='text-align: center; color: #d9534f;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #666; margin-bottom: 30px;'>ยินดีต้อนรับสู่ร้านดอกไม้แฮนด์เมดเพื่อคนพิเศษของคุณ</p>", unsafe_allow_html=True)
+# 1. แสดงรูปแบนเนอร์ช่อกุหลาบเฉพาะในหน้าหลักเท่านั้น
+st.markdown('<div class="main-banner">', unsafe_allow_html=True)
+try:
+    st.image("Copy.png", use_container_width=True)
+except Exception:
+    st.error("⚠️ ไม่พบไฟล์รูปภาพ 'Copy.png' บน GitHub กรุณาตรวจสอบการอัปโหลดไฟล์รูปอีกครั้งครับ")
+st.markdown('</div>', unsafe_allow_html=True)
 
 st.write("---")
 
-# 1. ข้อมูลรายการสินค้า
+# 2. ข้อมูลรายการสินค้า
 products = {
     "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
     "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
@@ -123,7 +134,7 @@ products = {
     "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
-# 2. แสดงรายการสินค้าแบบการ์ด (Grid View)
+# 3. แสดงรายการสินค้าแบบการ์ด (Grid View)
 st.subheader("📋 เมนูสินค้าแนะนำ")
 cols = st.columns(3)
 
@@ -142,7 +153,7 @@ for i, key in enumerate(product_keys):
 
 st.markdown("---")
 
-# 3. จัดการตะกร้าสินค้าใน session_state
+# 4. จัดการตะกร้าสินค้าใน session_state
 if "cart" not in st.session_state:
     st.session_state.cart = []
 
@@ -183,7 +194,7 @@ with order_col2:
             st.session_state.cart = []
             st.rerun()
 
-# 4. ส่วนสรุปยอด ชำระเงิน และระบบสุ่มส่วนลด
+# 5. ส่วนสรุปยอด ชำระเงิน และระบบสุ่มส่วนลด
 if st.session_state.cart:
     st.markdown("---")
     st.subheader("💳 สรุปยอดชำระเงิน & ส่วนลดพิเศษ")
