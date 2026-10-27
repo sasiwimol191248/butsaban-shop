@@ -3,72 +3,136 @@ import datetime
 import math
 import random
 
-# ตั้งค่าหน้าเว็บ
-st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹")
+# ตั้งค่าหน้าเว็บให้ดูกว้างและสบายตาขึ้น
+st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# แสดงรูปแบนเนอร์ด้านบนสุด (หากอัปโหลดไฟล์ Copy.png ไว้แล้ว)
+# ตกแต่งหน้าตาเว็บไซต์ด้วย CSS เพิ่มความพรีเมียม
+st.markdown("""
+    <style>
+    .main {
+        background-color: #faf9f6;
+    }
+    .stButton>button {
+        width: 100%;
+        background-color: #d9534f;
+        color: white;
+        border-radius: 8px;
+        font-weight: bold;
+        border: none;
+        padding: 0.5rem;
+    }
+    .stButton>button:hover {
+        background-color: #c9302c;
+        color: white;
+    }
+    .product-card {
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #eee;
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# 1. แสดงรูปภาพแบนเนอร์หลัก (เต็มตา สวยงาม)
 try:
     st.image("Copy.png", use_container_width=True)
-except:
-    st.title("🌹 Butsaban. ร้านดอกไม้ลวดกำมะหยี่")
+except Exception:
+    st.markdown("<h1 style='text-align: center; color: #b30000;'>Butsaban.</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center; color: #800000;'>ร้านดอกไม้ลวดกำมะหยี่</h3>", unsafe_allow_html=True)
 
-st.write("ยินดีต้อนรับสู่ระบบสั่งซื้อสินค้าออนไลน์ (Python Creative Challenge)")
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: #800000;'>🌸 ยินดีต้อนรับสู่ Butsaban Floral Shop 🌸</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #666;'>งานแฮนด์เมดลวดกำมะหยี่พรีเมียม มอบให้คนพิเศษในทุกโอกาสสำคัญ</p>", unsafe_allow_html=True)
+st.write("---")
 
-# 1. ข้อมูลรายการสินค้า
+# 2. ข้อมูลรายการสินค้า
 products = {
-    "1": ("ดอกทานตะวัน", 79),
-    "2": ("ดอกเดซี่", 79),
-    "3": ("บอนไซ", 119),
-    "4": ("ดอกบัว", 99),
-    "5": ("ลาเวนเดอร์", 89),
+    "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
+    "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
+    "3": {"name": "บอนไซ", "price": 119, "desc": "ความมั่นคงและอายุยืนยาว"},
+    "4": {"name": "ดอกบัว", "price": 99, "desc": "ความสงบและสิริมงคล"},
+    "5": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
-# 2. แสดงเมนูสินค้า
-st.subheader("📋 รายการสินค้า")
-for key, (name, price) in products.items():
-    st.write(f"**{key}.** {name} — **{price}** บาท/กระถาง")
+# 3. แสดงรายการสินค้าแบบแบ่งคอลัมน์ (Modern Grid View)
+st.subheader("📋 เมนูสินค้าแนะนำ")
+cols = st.columns(3)
+
+product_keys = list(products.keys())
+for i, key in enumerate(product_keys):
+    item = products[key]
+    with cols[i % 3]:
+        st.markdown(f"""
+            <div class="product-card">
+                <h3>{item['name']}</h3>
+                <p style="color: #666; font-size: 14px;">{item['desc']}</p>
+                <h4 style="color: #d9534f;">฿{item['price']} / กระถาง</h4>
+                <p style="font-size: 12px; color: #999;">รหัสสินค้า: #{key}</p>
+            </div>
+        """, unsafe_allow_html=True)
 
 st.markdown("---")
 
-# 3. จัดการตะกร้าสินค้าใน session_state
+# 4. จัดการตะกร้าสินค้าใน session_state
 if "cart" not in st.session_state:
     st.session_state.cart = []
 
-st.subheader("🛒 สั่งซื้อสินค้า")
-product_choice = st.selectbox(
-    "เลือกหมายเลขสินค้า",
-    options=list(products.keys()),
-    format_func=lambda x: f"{x}. {products[x][0]} ({products[x][1]} บาท)"
-)
+# แบ่งหน้าจอการสั่งซื้อเป็น 2 ฝั่ง (ฝั่งเลือกสินค้า กับ ฝั่งตะกร้า)
+order_col1, order_col2 = st.columns([1, 1])
 
-quantity = st.number_input("จำนวน (กระถาง)", min_value=1, value=1, step=1)
+with order_col1:
+    st.subheader("🛒 ฟอร์มสั่งซื้อสินค้า")
+    product_choice = st.selectbox(
+        "เลือกรายการสินค้า",
+        options=list(products.keys()),
+        format_func=lambda x: f"{x}. {products[x]['name']} ({products[x]['price']} บาท)"
+    )
 
-if st.button("➕ เพิ่มลงตะกร้า"):
-    p_name, u_price = products[product_choice]
-    item_total = float(u_price * quantity)
-    st.session_state.cart.append((p_name, quantity, u_price, item_total))
-    st.success(f"เพิ่ม '{p_name}' จำนวน {quantity} กระถาง เรียบร้อย!")
+    quantity = st.number_input("จำนวนที่ต้องการ (กระถาง)", min_value=1, value=1, step=1)
 
-# 4. แสดงสรุปรายการและคำนวณเงิน
+    if st.button("➕ เพิ่มสินค้าลงตะกร้า"):
+        p_name = products[product_choice]["name"]
+        u_price = products[product_choice]["price"]
+        item_total = float(u_price * quantity)
+        st.session_state.cart.append((p_name, quantity, u_price, item_total))
+        st.success(f"เพิ่ม '{p_name}' จำนวน {quantity} กระถาง ลงในตะกร้าแล้ว!")
+
+with order_col2:
+    st.subheader("🛍️ ตะกร้าสินค้าของคุณ")
+    if not st.session_state.cart:
+        st.info("ยังไม่มีสินค้าในตะกร้า เลือกสินค้าทางซ้ายมือได้เลยครับ")
+    else:
+        total_price = 0.0
+        for idx, item in enumerate(st.session_state.cart, 1):
+            name, qty, u_price, item_tot = item
+            st.write(f"**{idx}.** {name} x {qty} = **{item_tot:,.2f} บาท**")
+            total_price += item_tot
+            
+        st.write(f"---")
+        st.write(f"**ราคารวมทั้งหมด:** {total_price:,.2f} บาท")
+        
+        if st.button("🗑️ ล้างตะกร้าสินค้า"):
+            st.session_state.cart = []
+            st.rerun()
+
+# 5. ส่วนสรุปยอด ชำระเงิน และระบบสุ่มส่วนลด
 if st.session_state.cart:
     st.markdown("---")
-    st.subheader("🛍️ สรุปรายการสินค้าในตะกร้า")
+    st.subheader("💳 สรุปยอดชำระเงิน & ส่วนลดพิเศษ")
     
-    total_price = 0.0
-    for idx, item in enumerate(st.session_state.cart, 1):
-        name, qty, u_price, item_tot = item
-        st.write(f"{idx}. {name} x {qty} กระถาง ({u_price} บาท/กระถาง) = **{item_tot:,.2f} บาท**")
-        total_price += item_tot
-        
-    st.write(f"**ราคารวมทั้งหมดก่อนลด:** {total_price:,.2f} บาท")
+    total_price = sum(item[3] for item in st.session_state.cart)
     
-    # สุ่มส่วนลดและข้อความ
+    # สุ่มส่วนลด
     if "discount_percent" not in st.session_state:
         st.session_state.discount_percent = random.randint(5, 20)
         st.session_state.luck_msg = random.choice([
-            "ขอให้เป็นวันที่สดใส!",
-            "ขอบคุณที่อุดหนุนค่ะ",
-            "ดอกไม้น่ารักเหมาะกับคุณมาก!"
+            "ยินดีด้วย! คุณได้รับส่วนลดพิเศษประจำวัน",
+            "ขอบคุณที่สนับสนุนร้าน Butsaban ขอให้มีความสุขมากๆ นะคะ",
+            "ดอกไม้น่ารักๆ เหมาะกับวันพิเศษของคุณ!"
         ])
         
     disc_pct = st.session_state.discount_percent
@@ -76,29 +140,20 @@ if st.session_state.cart:
     disc_amount = total_price * (disc_pct / 100)
     final_price = total_price - disc_amount
     
-    st.info(f"🎁 ข้อความจากร้าน: {luck_msg}")
-    st.write(f"**คูปองส่วนลดสุ่มได้:** {disc_pct}% (ประหยัดไป {disc_amount:,.2f} บาท)")
-    st.markdown(f"### 💳 ยอดสุทธิที่ต้องชำระ: {final_price:,.2f} บาท")
+    st.success(f"🎁 **ข้อความจากร้าน:** {luck_msg}")
+    st.write(f"🏷️ **ส่วนลดที่คุณได้รับ:** {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)")
+    st.markdown(f"### ✨ ยอดสุทธิที่ต้องชำระ: **{final_price:,.2f} บาท**")
     
-    # 5. ช่องทางการชำระเงิน
-    pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. เงินสด", "2. โอนผ่านธนาคาร / พร้อมเพย์"))
+    # ช่องทางการชำระเงิน
+    pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร / พร้อมเพย์", "2. เงินสด"))
     
-    if st.button("✅ ยืนยันการสั่งซื้อ"):
+    if st.button("✅ ยืนยันการสั่งซื้อสินค้า"):
         now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        st.success(f"ทำรายการสำเร็จเมื่อเวลา: {now}")
-        
-        if "2." in pay_choice:
-            st.warning("📌 [ ข้อมูลสำหรับโอนเงิน ]")
-            st.write("-> ธนาคาร: กรุงไทย (KTB)")
-            st.write("-> เลขที่บัญชี: 123-0-56789-0")
-            st.write("-> ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่")
-            st.write("-> พร้อมเพย์: 063-472-9594")
-            st.write(f"-> ยอดที่ต้องโอนสุทธิ: **{final_price:,.2f} บาท**")
-            st.info("*(เมื่อโอนแล้ว กรุณาแนบสลิปเพื่อยืนยันการชำระเงิน)*")
-        else:
-            price_floor = math.floor(final_price)
-            st.info("📌 [ การชำระด้วยเงินสด ]")
-            st.write(f"-> ยอดชำระสุทธิ: {final_price:,.2f} บาท")
-            st.write(f"-> ยอดปัดเศษลง (สำหรับจ่ายเงินสดพอดี): **{price_floor} บาท**")
-            
         st.balloons()
+        st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกรายการเมื่อ: {now}")
+        
+        if "1." in pay_choice:
+            st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
+            st.write("🔹 ธนาคาร: กรุงไทย (KTB)")
+            st.write("🔹 เลขที่บัญชี: 123-0-56789-0")
+            st.write("🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่")
