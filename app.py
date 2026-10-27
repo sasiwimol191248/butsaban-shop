@@ -6,40 +6,43 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS เพิ่มความสวยงาม
+# ตกแต่ง CSS ให้หน้าเว็บดูสวยงามพรีเมียมและเรียบร้อยขึ้น
 st.markdown("""
     <style>
-    @keyframes bannerFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-15px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-    .banner-container {
-        animation: bannerFadeIn 1.2s ease-out;
+    .main-banner {
+        animation: fadeIn 1s ease-out;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
     }
     .product-card {
         padding: 20px;
-        border-radius: 10px;
-        border: 1px solid #eee;
-        background-color: white;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border-radius: 12px;
+        border: 1px solid #f0f0f0;
+        background-color: #ffffff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.04);
         text-align: center;
         margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.08);
     }
     .product-title {
         font-size: 20px !important;
         font-weight: bold;
-        color: #333;
-        margin-bottom: 5px;
+        color: #2c3e50;
+        margin-bottom: 8px;
     }
     .product-desc {
-        font-size: 15px !important;
-        color: #555;
+        font-size: 14px !important;
+        color: #666;
         min-height: 40px;
     }
     .product-price {
@@ -57,10 +60,18 @@ st.markdown("""
         border: none;
         padding: 0.6rem;
         font-size: 16px;
+        transition: background-color 0.2s;
     }
     .stButton>button:hover {
         background-color: #c9302c;
         color: white;
+    }
+    .login-box {
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -70,40 +81,41 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    st.markdown("<h2 style='text-align: center; color: #d9534f;'>🌹 เข้าสู่ระบบร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #666;'>กรุณาเข้าสู่ระบบเพื่อเข้าชมสินค้าและสั่งซื้อสินค้า</p>", unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns([1, 2, 1])
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #d9534f; margin-bottom: 10px;'>🌹 ร้าน Butsaban</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #666; font-size: 14px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
+        
         with st.form("login_form"):
             username = st.text_input("ชื่อผู้ใช้งาน (Username)")
             password = st.text_input("รหัสผ่าน (Password)", type="password")
             submit_login = st.form_submit_button("🔑 เข้าสู่ระบบ")
             
             if submit_login:
-                # ตั้งค่ารหัสผ่านจำลอง (สามารถใช้อะไรก็ได้ หรือกำหนดตายตัว เช่น user / 1234)
                 if username != "" and password != "":
                     st.session_state.logged_in = True
                     st.session_state.username = username
-                    st.success("เข้าสู่ระบบสำเร็จ! กำลังพาท่านเข้าสู่เว็บไซต์...")
+                    st.success("เข้าสู่ระบบสำเร็จ!")
                     st.rerun()
                 else:
-                    st.error("⚠️ กรุณากรอกชื่อผู้ใช้งานและรหัสผ่านให้ครบถ้วน")
+                    st.error("⚠️ กรุณากรอกข้อมูลให้ครบถ้วน")
         
-        st.info("💡 **คำแนะนำเบื้องต้น:** สามารถกรอกชื่ออะไรก็ได้ (เช่น `customer` หรือ `admin`) และใส่รหัสผ่านอะไรก็ได้เพื่อเข้าสู่ระบบทดลองครับ")
+        st.info("💡 *พิมพ์ชื่ออะไรก็ได้เพื่อเข้าสู่ระบบทดลอง*")
+        st.markdown('</div>', unsafe_allow_html=True)
     
-    # หยุดการทำงานหน้าอื่นไว้ก่อนจนกว่าจะ Login สำเร็จ
     st.stop()
 
 # --- ส่วนของเว็บไซต์หลัก (หลัง Log-in สำเร็จแล้ว) ---
-st.sidebar.success(f"👤 เข้าสู่ระบบโดย: **{st.session_state.username}**")
-if st.sidebar.button("🚪 ออกจากระบบ (Logout)"):
+st.sidebar.success(f"👤 ผู้ใช้งาน: **{st.session_state.username}**")
+if st.sidebar.button("🚪 ออกจากระบบ"):
     st.session_state.logged_in = False
     st.session_state.cart = []
     st.rerun()
 
-# 1. แสดงรูปแบนเนอร์ช่อกุหลาบพร้อมเอฟเฟกต์เด้งขึ้นมาตอนเข้าเว็บ
-st.markdown('<div class="banner-container">', unsafe_allow_html=True)
+# 1. แสดงรูปแบนเนอร์ช่อกุหลาบพร้อมกรอบสวยงาม
+st.markdown('<div class="main-banner">', unsafe_allow_html=True)
 try:
     st.image("Copy.png", use_container_width=True)
 except Exception:
@@ -112,7 +124,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 st.write("---")
 
-# 2. ข้อมูลรายการสินค้า
+# 2. ข้อมูลรายการสินค้า (รวมทิวลิป 69 บาทเรียบร้อย)
 products = {
     "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
     "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
