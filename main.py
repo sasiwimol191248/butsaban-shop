@@ -6,49 +6,53 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS
+# ตกแต่ง CSS ขยายขนาดฟ้อนท์และปรับแต่งหน้าตาให้ตัวใหญ่ขึ้นชัดเจน
 st.markdown("""
     <style>
+    /* ขยายฟ้อนท์โดยรวมและหัวข้อต่างๆ */
+    html, body, [class*="css"] {
+        font-size: 18px !important;
+    }
     .product-card {
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid #333;
+        padding: 25px;
+        border-radius: 15px;
+        border: 1px solid #444;
         background-color: #1e1e1e;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.4);
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         transition: transform 0.3s ease;
     }
     .product-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.6);
     }
     .product-title {
-        font-size: 20px !important;
+        font-size: 26px !important;
         font-weight: bold;
         color: #ff6b6b;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
     }
     .product-desc {
-        font-size: 14px !important;
-        color: #ccc;
-        min-height: 40px;
+        font-size: 18px !important;
+        color: #ddd;
+        min-height: 50px;
     }
     .product-price {
-        font-size: 18px !important;
+        font-size: 24px !important;
         color: #ff8787;
         font-weight: bold;
-        margin: 10px 0;
+        margin: 15px 0;
     }
     .stButton>button {
         width: 100%;
         background-color: #e03131;
         color: white;
-        border-radius: 8px;
+        border-radius: 10px;
         font-weight: bold;
         border: none;
-        padding: 0.6rem;
-        font-size: 16px;
+        padding: 0.8rem;
+        font-size: 20px !important;
         transition: background-color 0.2s;
     }
     .stButton>button:hover {
@@ -56,12 +60,16 @@ st.markdown("""
         color: white;
     }
     .big-section-title {
-        font-size: 24px !important;
+        font-size: 30px !important;
         font-weight: 700 !important;
         color: #ff8787 !important;
-        margin-bottom: 15px !important;
-        border-bottom: 2px solid #333;
-        padding-bottom: 8px;
+        margin-bottom: 20px !important;
+        border-bottom: 3px solid #444;
+        padding-bottom: 10px;
+    }
+    /* ขยายขนาดตัวหนังสือใน input และ selectbox */
+    .stTextInput input, .stSelectbox select, .stNumberInput input {
+        font-size: 18px !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -72,10 +80,10 @@ if "logged_in" not in st.session_state:
 
 if not st.session_state.logged_in:
     st.markdown("<br><br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 1.2, 1])
+    col1, col2, col3 = st.columns([1, 1.3, 1])
     with col2:
-        st.markdown("<h2 style='text-align: center; color: #ff6b6b; margin-bottom: 5px; font-size: 32px;'>🌹 ร้าน Butsaban</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #aaa; font-size: 15px; margin-bottom: 25px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #ff6b6b; margin-bottom: 10px; font-size: 38px;'>🌹 ร้าน Butsaban</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #aaa; font-size: 18px; margin-bottom: 30px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
         
         with st.form("login_form"):
             username = st.text_input("ชื่อผู้ใช้งาน (Username)")
@@ -96,7 +104,7 @@ if not st.session_state.logged_in:
     st.stop()
 
 # --- ส่วนของเว็บไซต์หลัก (หลัง Log-in สำเร็จแล้ว) ---
-st.sidebar.success(f"👤 ผู้ใช้งาน: **{st.session_state.username}**")
+st.sidebar.markdown(f"👤 ผู้ใช้งาน: **{st.session_state.username}**")
 if st.sidebar.button("🚪 ออกจากระบบ"):
     st.session_state.logged_in = False
     st.session_state.cart = []
@@ -108,7 +116,7 @@ try:
     with col_h2:
         st.image("header.png", use_container_width=True)
 except:
-    st.markdown("<h1 style='text-align: center; color: #ff6b6b; font-size: 36px;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: #ff6b6b; font-size: 42px;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
 
 st.write("---")
 
@@ -135,7 +143,7 @@ for i, key in enumerate(product_keys):
                 <div class="product-title">{item['name']}</div>
                 <div class="product-desc">{item['desc']}</div>
                 <div class="product-price">฿{item['price']} / กระถาง</div>
-                <p style="font-size: 13px; color: #888; margin: 0;">รหัสสินค้า: #{key}</p>
+                <p style="font-size: 15px; color: #888; margin: 0;">รหัสสินค้า: #{key}</p>
             </div>
         """, unsafe_allow_html=True)
 
@@ -172,11 +180,11 @@ with order_col2:
         total_price = 0.0
         for idx, item in enumerate(st.session_state.cart, 1):
             name, qty, u_price, item_tot = item
-            st.write(f"**{idx}.** {name} x {qty} = **{item_tot:,.2f} บาท**")
+            st.markdown(f"<p style='font-size: 19px;'><b>{idx}.</b> {name} x {qty} = <b>{item_tot:,.2f} บาท</b></p>", unsafe_allow_html=True)
             total_price += item_tot
             
         st.write(f"---")
-        st.write(f"**ราคารวมทั้งหมด:** {total_price:,.2f} บาท")
+        st.markdown(f"<p style='font-size: 22px;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
         
         if st.button("🗑️ ล้างตะกร้าสินค้า"):
             st.session_state.cart = []
@@ -203,8 +211,8 @@ if st.session_state.cart:
     final_price = total_price - disc_amount
     
     st.success(f"🎁 **ข้อความจากร้าน:** {luck_msg}")
-    st.write(f"🏷️ **ส่วนลดที่คุณได้รับ:** {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)")
-    st.markdown(f"### ✨ ยอดสุทธิที่ต้องชำระ: **{final_price:,.2f} บาท**")
+    st.markdown(f"<p style='font-size: 20px;'>🏷️ <b>ส่วนลดที่คุณได้รับ:</b> {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)</p>", unsafe_allow_html=True)
+    st.markdown(f"<h2 style='color: #ff6b6b;'>✨ ยอดสุทธิที่ต้องชำระ: <b>{final_price:,.2f} บาท</b></h2>", unsafe_allow_html=True)
     
     pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"))
     
@@ -215,23 +223,20 @@ if st.session_state.cart:
         
         if "1." in pay_choice:
             st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
-            st.write("🔹 ธนาคาร: กรุงไทย (KTB)")
-            st.write("🔹 เลขที่บัญชี: 123-0-56789-0")
-            st.write("🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่")
-            st.write("🔹 พร้อมเพย์: 063-472-9594")
-            st.write(f"🔹 **ยอดโอนสุทธิ: {final_price:,.2f} บาท**")
+            st.markdown("<p style='font-size: 19px;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size: 22px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {final_price:,.2f} บาท</b></p>", unsafe_allow_html=True)
             
-            # --- สร้าง QR Code พร้อมเพย์ ---
+            # --- สร้าง QR Code พร้อมเพย์ขนาดใหญ่พิเศษ ---
             st.markdown("<br>", unsafe_allow_html=True)
-            st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์จำลอง)")
+            st.markdown("### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)")
             qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
-            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={qr_text}"
+            # ปรับขนาด QR Code ให้ใหญ่ขึ้นเป็น 320x320 พิกเซล
+            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=320x320&data={qr_text}"
             
-            col_q1, col_q2, col_q3 = st.columns([1, 1, 1])
+            col_q1, col_q2, col_q3 = st.columns([1, 1.2, 1])
             with col_q2:
-                st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=200)
+                st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=320)
         else:
             price_floor = math.floor(final_price)
             st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-            st.write(f"🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท")
-            st.write(f"🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: **{price_floor} บาท**")
+            st.markdown(f"<p style='font-size: 19px;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
