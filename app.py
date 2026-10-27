@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS ให้หน้าเว็บดูสวยงามพรีเมียมและเรียบร้อยขึ้น
+# ตกแต่ง CSS ให้หน้าเว็บดูสวยงามพรีเมียม
 st.markdown("""
     <style>
     @keyframes fadeIn {
@@ -68,9 +68,9 @@ st.markdown("""
     }
     .login-box {
         background: #ffffff;
-        padding: 30px;
+        padding: 35px;
         border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         border: 1px solid #eee;
     }
     </style>
@@ -82,11 +82,11 @@ if "logged_in" not in st.session_state:
 
 if not st.session_state.logged_in:
     st.markdown("<br><br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 1.2, 1])
+    col1, col2, col3 = st.columns([1, 1.3, 1])
     with col2:
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
-        st.markdown("<h2 style='text-align: center; color: #d9534f; margin-bottom: 10px;'>🌹 ร้าน Butsaban</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #666; font-size: 14px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #d9534f; margin-bottom: 5px;'>🌹 ร้าน Butsaban</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #666; font-size: 14px; margin-bottom: 25px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
         
         with st.form("login_form"):
             username = st.text_input("ชื่อผู้ใช้งาน (Username)")
@@ -107,14 +107,14 @@ if not st.session_state.logged_in:
     
     st.stop()
 
-# --- ส่วนของเว็บไซต์หลัก (หลัง Log-in สำเร็จแล้ว) ---
+# --- ส่วนของเว็บไซต์หลัก (แสดงผลเฉพาะหลัง Log-in สำเร็จแล้วเท่านั้น) ---
 st.sidebar.success(f"👤 ผู้ใช้งาน: **{st.session_state.username}**")
 if st.sidebar.button("🚪 ออกจากระบบ"):
     st.session_state.logged_in = False
     st.session_state.cart = []
     st.rerun()
 
-# 1. แสดงรูปแบนเนอร์ช่อกุหลาบพร้อมกรอบสวยงาม
+# 1. แสดงรูปแบนเนอร์ช่อกุหลาบพร้อมกรอบสวยงามเฉพาะในหน้าหลัก
 st.markdown('<div class="main-banner">', unsafe_allow_html=True)
 try:
     st.image("Copy.png", use_container_width=True)
@@ -124,7 +124,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 st.write("---")
 
-# 2. ข้อมูลรายการสินค้า (รวมทิวลิป 69 บาทเรียบร้อย)
+# 2. ข้อมูลรายการสินค้า
 products = {
     "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
     "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
