@@ -211,7 +211,7 @@ if st.session_state.cart:
     if st.button("✅ ยืนยันการสั่งซื้อสินค้า"):
         now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         st.balloons()
-        st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกรายการเมื่อ: {now}")
+        st.success(f"สั่งซื้อสำเร็จ! บันทึกรายการเมื่อ: {now}")
         
         if "1." in pay_choice:
             st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
@@ -221,7 +221,7 @@ if st.session_state.cart:
             st.write("🔹 พร้อมเพย์: 063-472-9594")
             st.write(f"🔹 **ยอดโอนสุทธิ: {final_price:,.2f} บาท**")
             
-            # --- สร้าง QR Code พร้อมเพย์จำลอง ---
+            # --- สร้าง QR Code พร้อมเพย์ และปุ่มจำลองการสแกน ---
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์จำลอง)")
             qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
@@ -230,8 +230,11 @@ if st.session_state.cart:
             col_q1, col_q2, col_q3 = st.columns([1, 1, 1])
             with col_q2:
                 st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=200)
-                
-            st.info("*(รบกวนส่งสลิปหลักฐานการโอนเงินให้ทางร้านด้วยนะคะ)*")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("📲 [จำลอง] กดจำลองว่าสแกนจ่ายเงินสำเร็จแล้ว"):
+                st.balloons()
+                st.success("ขอบคุณที่ชำระเงินค่ะ! ทางร้านได้รับยอดโอนเรียบร้อยแล้ว เตรียมจัดส่งช่อดอกไม้แสนสวยให้ทันทีค่า")
         else:
             price_floor = math.floor(final_price)
             st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
