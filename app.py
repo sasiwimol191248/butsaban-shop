@@ -2,37 +2,34 @@ import streamlit as st
 import datetime
 import math
 import random
-import time
 
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS เพิ่มลูกเล่นแอนิเมชันให้ข้อความเด้งขึ้นมา
+# ตกแต่ง CSS ให้รูปแบนเนอร์และกล่องสินค้าดูสวยงามพรีเมียม
 st.markdown("""
     <style>
-    @keyframes fadeInUp {
+    @keyframes bannerFadeIn {
         from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(-20px);
         }
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
-    .fade-in-box {
-        animation: fadeInUp 1.2s ease-out;
-        padding: 20px;
-        border-radius: 12px;
-        background-color: #ffffff;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.08);
-        border: 1px solid #f0f0f0;
-        margin-bottom: 20px;
-        text-align: center;
+    .banner-container {
+        animation: bannerFadeIn 1.2s ease-out;
     }
-    .welcome-text {
-        animation: fadeInUp 1.5s ease-out;
+    .product-card {
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #eee;
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         text-align: center;
+        margin-bottom: 20px;
     }
     .stButton>button {
         width: 100%;
@@ -50,36 +47,27 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 1. แสดงรูปแบนเนอร์ช่อกุหลาบเต็มตาทันทีที่เข้าเว็บ
+# 1. แสดงรูปแบนเนอร์ช่อกุหลาบพร้อมเอฟเฟกต์เด้งขึ้นมาตอนเข้าเว็บ
+st.markdown('<div class="banner-container">', unsafe_allow_html=True)
 try:
     st.image("Copy.png", use_container_width=True)
 except Exception:
-    st.error("⚠️ ไม่พบไฟล์รูปภาพ 'Copy.png' กรุณาตรวจสอบไฟล์บน GitHub อีกครั้ง")
-
-# 2. จำลองการหน่วงเวลา (เช่น รอ 1 วินาที ให้คนดูรูปแบนเนอร์ก่อน) แล้วค่อยแสดงข้อความเด้งขึ้นมา
-with st.spinner("กำลังโหลดความสวยงาม..."):
-    time.sleep(0.8)  # หน่วงเวลา 0.8 วินาที
-
-# 3. ส่วนข้อความต้อนรับและกรอบที่จะเด้งขึ้นมา
-st.markdown("""
-    <div class="welcome-text">
-        <h2 style='color: #d9534f; margin-top: 20px;'>🌸 ยินดีต้อนรับสู่ Butsaban Floral Shop 🌸</h2>
-        <p style='color: #666;'>งานแฮนด์เมดลวดกำมะหยี่พรีเมียม มอบให้คนพิเศษในทุกโอกาสสำคัญ</p>
-    </div>
-""", unsafe_allow_html=True)
+    st.error("⚠️ ไม่พบไฟล์รูปภาพ 'Copy.png' บน GitHub กรุณาตรวจสอบการอัปโหลดไฟล์รูปอีกครั้งครับ")
+st.markdown('</div>', unsafe_allow_html=True)
 
 st.write("---")
 
-# 4. ข้อมูลรายการสินค้า
+# 2. ข้อมูลรายการสินค้า (เพิ่มทิวลิปเข้ามาแล้วครับ)
 products = {
     "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
     "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
-    "3": {"name": "บอนไซ", "price": 119, "desc": "ความมั่นคงและอายุยืนยาว"},
-    "4": {"name": "ดอกบัว", "price": 99, "desc": "ความสงบและสิริมงคล"},
-    "5": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
+    "3": {"name": "ดอกทิวลิป", "price": 69, "desc": "ความรักที่สมบูรณ์แบบและความสดใส"},
+    "4": {"name": "บอนไซ", "price": 119, "desc": "ความมั่นคงและอายุยืนยาว"},
+    "5": {"name": "ดอกบัว", "price": 99, "desc": "ความสงบและสิริมงคล"},
+    "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
-# 5. แสดงรายการสินค้าแบบการ์ด (Grid View) พร้อมเอฟเฟกต์เด้ง
+# 3. แสดงรายการสินค้าแบบการ์ด (Grid View)
 st.subheader("📋 เมนูสินค้าแนะนำ")
 cols = st.columns(3)
 
@@ -88,7 +76,7 @@ for i, key in enumerate(product_keys):
     item = products[key]
     with cols[i % 3]:
         st.markdown(f"""
-            <div class="fade-in-box">
+            <div class="product-card">
                 <h3 style="color: #333; margin-bottom: 5px;">{item['name']}</h3>
                 <p style="color: #666; font-size: 14px; min-height: 40px;">{item['desc']}</p>
                 <h4 style="color: #d9534f; margin: 10px 0;">฿{item['price']} / กระถาง</h4>
@@ -98,7 +86,7 @@ for i, key in enumerate(product_keys):
 
 st.markdown("---")
 
-# 6. จัดการตะกร้าสินค้าใน session_state
+# 4. จัดการตะกร้าสินค้าใน session_state
 if "cart" not in st.session_state:
     st.session_state.cart = []
 
@@ -139,7 +127,7 @@ with order_col2:
             st.session_state.cart = []
             st.rerun()
 
-# 7. ส่วนสรุปยอด ชำระเงิน และระบบสุ่มส่วนลด
+# 5. ส่วนสรุปยอด ชำระเงิน และระบบสุ่มส่วนลด
 if st.session_state.cart:
     st.markdown("---")
     st.subheader("💳 สรุปยอดชำระเงิน & ส่วนลดพิเศษ")
@@ -181,5 +169,4 @@ if st.session_state.cart:
         else:
             price_floor = math.floor(final_price)
             st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-            st.write(f"🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท")
-            st.write(f"🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: **{price_floor} บาท**")
+            st.write(f"🔹 ยอดชำระสุทธิ: {final
