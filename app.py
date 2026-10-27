@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS ให้รูปแบนเนอร์และกล่องสินค้าดูสวยงามพรีเมียม
+# ตกแต่ง CSS เพิ่มขนาดตัวหนังสือให้ใหญ่ขึ้นและจัดแต่งกรอบแบนเนอร์ให้พอดี
 st.markdown("""
     <style>
     @keyframes bannerFadeIn {
@@ -31,6 +31,24 @@ st.markdown("""
         text-align: center;
         margin-bottom: 20px;
     }
+    /* ปรับขนาดตัวหนังสือในการ์ดสินค้าให้ใหญ่และชัดเจนขึ้น */
+    .product-title {
+        font-size: 20px !important;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    .product-desc {
+        font-size: 15px !important;
+        color: #555;
+        min-height: 40px;
+    }
+    .product-price {
+        font-size: 18px !important;
+        color: #d9534f;
+        font-weight: bold;
+        margin: 10px 0;
+    }
     .stButton>button {
         width: 100%;
         background-color: #d9534f;
@@ -38,7 +56,8 @@ st.markdown("""
         border-radius: 8px;
         font-weight: bold;
         border: none;
-        padding: 0.5rem;
+        padding: 0.6rem;
+        font-size: 16px;
     }
     .stButton>button:hover {
         background-color: #c9302c;
@@ -77,10 +96,10 @@ for i, key in enumerate(product_keys):
     with cols[i % 3]:
         st.markdown(f"""
             <div class="product-card">
-                <h3 style="color: #333; margin-bottom: 5px;">{item['name']}</h3>
-                <p style="color: #666; font-size: 14px; min-height: 40px;">{item['desc']}</p>
-                <h4 style="color: #d9534f; margin: 10px 0;">฿{item['price']} / กระถาง</h4>
-                <p style="font-size: 12px; color: #999; margin: 0;">รหัสสินค้า: #{key}</p>
+                <div class="product-title">{item['name']}</div>
+                <div class="product-desc">{item['desc']}</div>
+                <div class="product-price">฿{item['price']} / กระถาง</div>
+                <p style="font-size: 13px; color: #888; margin: 0;">รหัสสินค้า: #{key}</p>
             </div>
         """, unsafe_allow_html=True)
 
@@ -149,8 +168,6 @@ if st.session_state.cart:
     
     st.success(f"🎁 **ข้อความจากร้าน:** {luck_msg}")
     st.write(f"🏷️ **ส่วนลดที่คุณได้รับ:** {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)")
-    
-    # แก้ไขจุดที่ผิดพลาดตรงนี้ให้ถูกต้องเรียบร้อยแล้ว
     st.markdown(f"### ✨ ยอดสุทธิที่ต้องชำระ: **{final_price:,.2f} บาท**")
     
     pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร / พร้อมเพย์", "2. เงินสด"))
