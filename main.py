@@ -12,37 +12,37 @@ st.markdown("""
     .product-card {
         padding: 20px;
         border-radius: 12px;
-        border: 1px solid #f0f0f0;
-        background-color: #ffffff;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        border: 1px solid #333;
+        background-color: #1e1e1e;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         text-align: center;
         margin-bottom: 20px;
         transition: transform 0.3s ease;
     }
     .product-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.5);
     }
     .product-title {
         font-size: 20px !important;
         font-weight: bold;
-        color: #2c3e50;
+        color: #ff6b6b;
         margin-bottom: 8px;
     }
     .product-desc {
         font-size: 14px !important;
-        color: #666;
+        color: #ccc;
         min-height: 40px;
     }
     .product-price {
         font-size: 18px !important;
-        color: #d9534f;
+        color: #ff8787;
         font-weight: bold;
         margin: 10px 0;
     }
     .stButton>button {
         width: 100%;
-        background-color: #d9534f;
+        background-color: #e03131;
         color: white;
         border-radius: 8px;
         font-weight: bold;
@@ -52,15 +52,15 @@ st.markdown("""
         transition: background-color 0.2s;
     }
     .stButton>button:hover {
-        background-color: #c9302c;
+        background-color: #c92a2a;
         color: white;
     }
     .login-box {
-        background: #ffffff;
+        background: #1e1e1e;
         padding: 35px;
         border-radius: 15px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        border: 1px solid #eee;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        border: 1px solid #333;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -74,8 +74,8 @@ if not st.session_state.logged_in:
     col1, col2, col3 = st.columns([1, 1.3, 1])
     with col2:
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
-        st.markdown("<h2 style='text-align: center; color: #d9534f; margin-bottom: 5px;'>🌹 ร้าน Butsaban</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #666; font-size: 14px; margin-bottom: 25px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #ff6b6b; margin-bottom: 5px;'>🌹 ร้าน Butsaban</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #aaa; font-size: 14px; margin-bottom: 25px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
         
         with st.form("login_form"):
             username = st.text_input("ชื่อผู้ใช้งาน (Username)")
@@ -103,9 +103,9 @@ if st.sidebar.button("🚪 ออกจากระบบ"):
     st.session_state.cart = []
     st.rerun()
 
-# หัวข้อต้อนรับในหน้าหลัก
-st.markdown("<h1 style='text-align: center; color: #d9534f;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #666; margin-bottom: 30px;'>ยินดีต้อนรับสู่ร้านดอกไม้แฮนด์เมดเพื่อคนพิเศษของคุณ</p>", unsafe_allow_html=True)
+# หัวข้อต้อนรับในหน้าหลัก (ไม่มีกล่องขาวกวนใจแล้ว)
+st.markdown("<h1 style='text-align: center; color: #ff6b6b;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #aaa; margin-bottom: 30px;'>ยินดีต้อนรับสู่ร้านดอกไม้แฮนด์เมดเพื่อคนพิเศษของคุณ</p>", unsafe_allow_html=True)
 
 st.write("---")
 
