@@ -107,7 +107,7 @@ if st.sidebar.button("🚪 ออกจากระบบ"):
     st.session_state.cart = []
     st.rerun()
 
-# หัวข้อต้อนรับในหน้าหลัก (ใช้หัวข้อตัวหนังสือสวยงามแทนการดึงรูปภาพ)
+# หัวข้อต้อนรับในหน้าหลัก
 st.markdown("<h1 style='text-align: center; color: #d9534f;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #666; margin-bottom: 30px;'>ยินดีต้อนรับสู่ร้านดอกไม้แฮนด์เมดเพื่อคนพิเศษของคุณ</p>", unsafe_allow_html=True)
 
