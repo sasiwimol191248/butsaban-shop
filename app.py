@@ -2,13 +2,38 @@ import streamlit as st
 import datetime
 import math
 import random
+import time
 
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS เพิ่มความพรีเมียม
+# ตกแต่ง CSS เพิ่มลูกเล่นแอนิเมชันให้ข้อความเด้งขึ้นมา
 st.markdown("""
     <style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .fade-in-box {
+        animation: fadeInUp 1.2s ease-out;
+        padding: 20px;
+        border-radius: 12px;
+        background-color: #ffffff;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+        border: 1px solid #f0f0f0;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .welcome-text {
+        animation: fadeInUp 1.5s ease-out;
+        text-align: center;
+    }
     .stButton>button {
         width: 100%;
         background-color: #d9534f;
@@ -22,30 +47,30 @@ st.markdown("""
         background-color: #c9302c;
         color: white;
     }
-    .product-card {
-        padding: 20px;
-        border-radius: 10px;
-        border: 1px solid #eee;
-        background-color: white;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        text-align: center;
-        margin-bottom: 20px;
-    }
     </style>
 """, unsafe_allow_html=True)
 
-# 1. แสดงรูปภาพแบนเนอร์หลัก (ดึงรูป Copy.png มาแสดงตรงหัวเว็บ)
+# 1. แสดงรูปแบนเนอร์ช่อกุหลาบเต็มตาทันทีที่เข้าเว็บ
 try:
     st.image("Copy.png", use_container_width=True)
 except Exception:
-    st.error("⚠️ ไม่พบไฟล์รูปภาพ 'Copy.png' กรุณาอัปโหลดไฟล์รูปภาพขึ้นไปไว้ที่ GitHub ในโฟลเดอร์เดียวกันกับไฟล์ app.py ครับ")
+    st.error("⚠️ ไม่พบไฟล์รูปภาพ 'Copy.png' กรุณาตรวจสอบไฟล์บน GitHub อีกครั้ง")
 
-st.markdown("<br>", unsafe_allow_html=True)
-st.markdown("<h2 style='text-align: center; color: #d9534f;'>🌸 ยินดีต้อนรับสู่ Butsaban Floral Shop 🌸</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #888;'>งานแฮนด์เมดลวดกำมะหยี่พรีเมียม มอบให้คนพิเศษในทุกโอกาสสำคัญ</p>", unsafe_allow_html=True)
+# 2. จำลองการหน่วงเวลา (เช่น รอ 1 วินาที ให้คนดูรูปแบนเนอร์ก่อน) แล้วค่อยแสดงข้อความเด้งขึ้นมา
+with st.spinner("กำลังโหลดความสวยงาม..."):
+    time.sleep(0.8)  # หน่วงเวลา 0.8 วินาที
+
+# 3. ส่วนข้อความต้อนรับและกรอบที่จะเด้งขึ้นมา
+st.markdown("""
+    <div class="welcome-text">
+        <h2 style='color: #d9534f; margin-top: 20px;'>🌸 ยินดีต้อนรับสู่ Butsaban Floral Shop 🌸</h2>
+        <p style='color: #666;'>งานแฮนด์เมดลวดกำมะหยี่พรีเมียม มอบให้คนพิเศษในทุกโอกาสสำคัญ</p>
+    </div>
+""", unsafe_allow_html=True)
+
 st.write("---")
 
-# 2. ข้อมูลรายการสินค้า
+# 4. ข้อมูลรายการสินค้า
 products = {
     "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
     "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
@@ -54,7 +79,7 @@ products = {
     "5": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
-# 3. แสดงรายการสินค้าแบบการ์ด (Grid View)
+# 5. แสดงรายการสินค้าแบบการ์ด (Grid View) พร้อมเอฟเฟกต์เด้ง
 st.subheader("📋 เมนูสินค้าแนะนำ")
 cols = st.columns(3)
 
@@ -63,17 +88,17 @@ for i, key in enumerate(product_keys):
     item = products[key]
     with cols[i % 3]:
         st.markdown(f"""
-            <div class="product-card">
-                <h3 style="color: #333;">{item['name']}</h3>
-                <p style="color: #666; font-size: 14px;">{item['desc']}</p>
-                <h4 style="color: #d9534f;">฿{item['price']} / กระถาง</h4>
-                <p style="font-size: 12px; color: #999;">รหัสสินค้า: #{key}</p>
+            <div class="fade-in-box">
+                <h3 style="color: #333; margin-bottom: 5px;">{item['name']}</h3>
+                <p style="color: #666; font-size: 14px; min-height: 40px;">{item['desc']}</p>
+                <h4 style="color: #d9534f; margin: 10px 0;">฿{item['price']} / กระถาง</h4>
+                <p style="font-size: 12px; color: #999; margin: 0;">รหัสสินค้า: #{key}</p>
             </div>
         """, unsafe_allow_html=True)
 
 st.markdown("---")
 
-# 4. จัดการตะกร้าสินค้าใน session_state
+# 6. จัดการตะกร้าสินค้าใน session_state
 if "cart" not in st.session_state:
     st.session_state.cart = []
 
@@ -114,7 +139,7 @@ with order_col2:
             st.session_state.cart = []
             st.rerun()
 
-# 5. ส่วนสรุปยอด ชำระเงิน และระบบสุ่มส่วนลด
+# 7. ส่วนสรุปยอด ชำระเงิน และระบบสุ่มส่วนลด
 if st.session_state.cart:
     st.markdown("---")
     st.subheader("💳 สรุปยอดชำระเงิน & ส่วนลดพิเศษ")
