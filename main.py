@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS ให้หน้าเว็บดูสวยงามพรีเมียม
+# ตกแต่ง CSS (เอาการ์ดครอบหน้าล็อกอินออก ให้แสดงผลแบบคลีนๆ)
 st.markdown("""
     <style>
     .product-card {
@@ -55,13 +55,6 @@ st.markdown("""
         background-color: #c92a2a;
         color: white;
     }
-    .login-box {
-        background: #1e1e1e;
-        padding: 35px;
-        border-radius: 15px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-        border: 1px solid #333;
-    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -70,10 +63,10 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 1.3, 1])
+    st.markdown("<br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
-        st.markdown('<div class="login-box">', unsafe_allow_html=True)
+        # แสดงหัวข้อตรงๆ แบบไม่มีกล่องสี่เหลี่ยมสีๆ มาครอบ
         st.markdown("<h2 style='text-align: center; color: #ff6b6b; margin-bottom: 5px;'>🌹 ร้าน Butsaban</h2>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #aaa; font-size: 14px; margin-bottom: 25px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
         
@@ -92,7 +85,6 @@ if not st.session_state.logged_in:
                     st.error("⚠️ กรุณากรอกข้อมูลให้ครบถ้วน")
         
         st.info("💡 *พิมพ์ชื่ออะไรก็ได้เพื่อเข้าสู่ระบบทดลอง*")
-        st.markdown('</div>', unsafe_allow_html=True)
     
     st.stop()
 
@@ -103,7 +95,7 @@ if st.sidebar.button("🚪 ออกจากระบบ"):
     st.session_state.cart = []
     st.rerun()
 
-# หัวข้อต้อนรับในหน้าหลัก (ไม่มีกล่องขาวกวนใจแล้ว)
+# หัวข้อต้อนรับในหน้าหลัก
 st.markdown("<h1 style='text-align: center; color: #ff6b6b;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #aaa; margin-bottom: 30px;'>ยินดีต้อนรับสู่ร้านดอกไม้แฮนด์เมดเพื่อคนพิเศษของคุณ</p>", unsafe_allow_html=True)
 
