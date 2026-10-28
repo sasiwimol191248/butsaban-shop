@@ -175,8 +175,17 @@ if not st.session_state.logged_in:
                         if r_user in st.session_state.registered_users:
                             st.error("⚠️ ชื่อผู้ใช้งานนี้มีคนใช้แล้ว")
                         else:
+                            # บันทึกผู้ใช้ใหม่
                             st.session_state.registered_users[r_user] = r_pass
-                            st.success("🎉 สมัครสมาชิกสำเร็จ! สลับไปแท็บ 'เข้าสู่ระบบ' เพื่อใช้งานได้เลย")
+                            # ล็อกอินเข้าสู่ระบบอัตโนมัติทันที
+                            st.session_state.logged_in = True
+                            st.session_state.username = r_user
+                            if r_user == "admin":
+                                st.session_state.is_admin = True
+                            else:
+                                st.session_state.is_admin = False
+                            st.success("🎉 สมัครสมาชิกและเข้าสู่ระบบสำเร็จ!")
+                            st.rerun()
                     else:
                         st.error("⚠️ กรุณากรอกข้อมูลให้ครบถ้วน")
     
@@ -205,7 +214,6 @@ if st.session_state.is_admin:
             real_index = len(st.session_state.orders_db) - 1 - i
             status = order.get("status", "⏳ รอดำเนินการ")
             
-            # ปรับสีป้ายสถานะ
             status_badge = f"<span style='color: #ffa94d;'><b>{status}</b></span>" if "รอดำเนินการ" in status else f"<span style='color: #51cf66;'><b>{status}</b></span>"
             
             with st.expander(f"ออเดอร์ที่ #{real_index + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท ({order['time']}) [{status}]"):
@@ -382,7 +390,7 @@ if st.session_state.cart:
             "items": st.session_state.cart.copy(),
             "total": final_price,
             "pay_type": pay_choice,
-            "status": "⏳ รอดำเนินการ"  # เพิ่มสถานะเริ่มต้นของออเดอร์
+            "status": "⏳ รอดำเนินการ"
         }
         
         st.session_state.orders_db.append(new_order)
