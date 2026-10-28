@@ -6,42 +6,43 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS ให้พรีเมียม สวยงาม และอ่านง่าย
+# ตกแต่ง CSS ให้สะอาดตา สบายตา พื้นที่กว้างขวาง
 st.markdown("""
     <style>
     html, body, [class*="css"] {
         font-size: 18px !important;
     }
     .product-card {
-        padding: 20px;
-        border-radius: 15px;
-        border: 1px solid #444;
-        background-color: #1e1e1e;
+        padding: 25px;
+        border-radius: 16px;
+        border: 1px solid #333;
+        background-color: #161616;
         box-shadow: 0 6px 15px rgba(0,0,0,0.4);
         text-align: center;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
         transition: transform 0.3s ease;
     }
     .product-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+        border-color: #ff6b6b;
     }
     .product-title {
-        font-size: 24px !important;
+        font-size: 26px !important;
         font-weight: bold;
         color: #ff6b6b;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
     .product-desc {
         font-size: 16px !important;
-        color: #ddd;
+        color: #ccc;
         min-height: 45px;
     }
     .product-price {
-        font-size: 22px !important;
+        font-size: 24px !important;
         color: #ff8787;
         font-weight: bold;
-        margin: 10px 0;
+        margin: 15px 0;
     }
     .stButton>button {
         width: 100%;
@@ -50,7 +51,7 @@ st.markdown("""
         border-radius: 10px;
         font-weight: bold;
         border: none;
-        padding: 0.6rem;
+        padding: 0.7rem;
         font-size: 18px !important;
         transition: background-color 0.2s;
     }
@@ -58,21 +59,23 @@ st.markdown("""
         background-color: #c92a2a;
         color: white;
     }
-    .form-container {
-        background-color: #1a1a1a;
-        padding: 20px;
-        border-radius: 15px;
-        border: 1px solid #333;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-        margin-bottom: 20px;
+    /* กรอบส่วนล่างแบบสะอาดตา กว้างขวาง */
+    .section-box {
+        background-color: #181818;
+        padding: 30px;
+        border-radius: 16px;
+        border: 1px solid #2c2c2c;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        margin-top: 30px;
+        margin-bottom: 30px;
     }
     .section-header {
-        font-size: 22px !important;
+        font-size: 26px !important;
         font-weight: 700 !important;
         color: #ff8787 !important;
-        margin-bottom: 15px !important;
-        border-bottom: 2px solid #444;
-        padding-bottom: 8px;
+        margin-bottom: 20px !important;
+        border-bottom: 2px solid #333;
+        padding-bottom: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -136,60 +139,55 @@ products = {
 if "cart" not in st.session_state:
     st.session_state.cart = []
 
-# แบ่งหน้าจอเป็น 2 ฝั่งหลัก: ซ้ายแสดงสินค้า | ขวาแสดงตะกร้าสินค้า การชำระเงิน และ QR Code
-main_col1, main_col2 = st.columns([1.2, 1])
+# แสดงรายการสินค้าแบบ Grid 3 คอลัมน์ (กว้างขวาง สบายตา)
+st.markdown('<div class="section-header" style="border:none; text-align:center;">📋 เมนูสินค้าแนะนำ (เลือกสินค้าที่ชื่นชอบ)</div>', unsafe_allow_html=True)
+cols = st.columns(3)
+product_keys = list(products.keys())
 
-with main_col1:
-    st.markdown('<div class="section-header">📋 เมนูสินค้าแนะนำ (คลิกสั่งซื้อได้เลย)</div>', unsafe_allow_html=True)
-    
-    # แสดงสินค้าเป็น Grid 2 คอลัมน์
-    cols = st.columns(2)
-    product_keys = list(products.keys())
-    
-    for i, key in enumerate(product_keys):
-        item = products[key]
-        with cols[i % 2]:
-            st.markdown(f"""
-                <div class="product-card">
-                    <div class="product-title">{item['name']}</div>
-                    <div class="product-desc">{item['desc']}</div>
-                    <div class="product-price">฿{item['price']} / กระถาง</div>
-                    <p style="font-size: 14px; color: #888; margin: 0 0 10px 0;">รหัสสินค้า: #{key}</p>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            if st.button(f"➕ สั่งซื้อ {item['name']}", key=f"btn_{key}__"):
-                p_name = item["name"]
-                u_price = item["price"]
-                item_total = float(u_price * 1)
-                st.session_state.cart.append((p_name, 1, u_price, item_total))
-                st.success(f"เพิ่ม '{p_name}' 1 กระถางลงตะกร้าแล้ว!")
+for i, key in enumerate(product_keys):
+    item = products[key]
+    with cols[i % 3]:
+        st.markdown(f"""
+            <div class="product-card">
+                <div class="product-title">{item['name']}</div>
+                <div class="product-desc">{item['desc']}</div>
+                <div class="product-price">฿{item['price']} / กระถาง</div>
+                <p style="font-size: 14px; color: #888; margin: 0 0 10px 0;">รหัสสินค้า: #{key}</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button(f"➕ สั่งซื้อ {item['name']}", key=f"btn_{key}__"):
+            p_name = item["name"]
+            u_price = item["price"]
+            item_total = float(u_price * 1)
+            st.session_state.cart.append((p_name, 1, u_price, item_total))
+            st.success(f"เพิ่ม '{p_name}' 1 กระถางลงตะกร้าแล้ว!")
 
-with main_col2:
-    st.markdown('<div class="form-container">', unsafe_allow_html=True)
-    st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าของคุณ</div>', unsafe_allow_html=True)
+# ==========================================
+# ส่วนด้านล่าง: ตะกร้าสินค้าและระบบชำระเงิน (จัดระเบียบใหม่ กว้างขวาง ไม่รก)
+# ==========================================
+if st.session_state.cart:
+    st.markdown('<div class="section-box">', unsafe_allow_html=True)
     
-    if not st.session_state.cart:
-        st.info("ยังไม่มีสินค้าในตะกร้า กดปุ่ม 'สั่งซื้อ' จากสินค้าด้านซ้ายได้เลยครับ")
-    else:
+    cart_col1, cart_col2 = st.columns([1, 1])
+    
+    with cart_col1:
+        st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าของคุณ</div>', unsafe_allow_html=True)
         total_price = 0.0
         for idx, item in enumerate(st.session_state.cart, 1):
             name, qty, u_price, item_tot = item
-            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'><b>{idx}.</b> {name} x {qty} = <b>{item_tot:,.2f} บาท</b></p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size: 19px; color: #ffffff;'><b>{idx}.</b> {name} x {qty} = <b>{item_tot:,.2f} บาท</b></p>", unsafe_allow_html=True)
             total_price += item_tot
             
         st.write(f"---")
-        st.markdown(f"<p style='font-size: 20px; color: #ffffff;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
         
         if st.button("🗑️ ล้างตะกร้าสินค้า"):
             st.session_state.cart = []
             st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # ส่วนสรุปยอด ชำระเงิน และ QR Code อยู่ในฝั่งขวาด้านล่างตะกร้าทันที
-    if st.session_state.cart:
-        st.markdown('<div class="form-container">', unsafe_allow_html=True)
-        st.markdown('<div class="section-header">💳 ชำระเงิน & ส่วนลดพิเศษ</div>', unsafe_allow_html=True)
+    with cart_col2:
+        st.markdown('<div class="section-header">💳 สรุปยอด & ส่วนลดพิเศษ</div>', unsafe_allow_html=True)
         
         total_price = sum(item[3] for item in st.session_state.cart)
         
@@ -207,34 +205,38 @@ with main_col2:
         final_price = total_price - disc_amount
         
         st.success(f"🎁 **ข้อความจากร้าน:** {luck_msg}")
-        st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🏷️ <b>ส่วนลดที่คุณได้รับ:</b> {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🏷️ <b>ส่วนลด:</b> {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)</p>", unsafe_allow_html=True)
         st.markdown(f"<h3 style='color: #ff6b6b;'>✨ ยอดสุทธิที่ต้องชำระ: <b>{final_price:,.2f} บาท</b></h3>", unsafe_allow_html=True)
         
-        pay_choice = st.radio("เลือกช่องทางการชำระเงิน (Payment Method)", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"))
+        pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"))
+
+    st.markdown("---")
+    
+    # ปุ่มยืนยันการสั่งซื้ออยู่ตรงกลางด้านล่างสุด สวยงามชัดเจน
+    col_btn1, col_btn2, col_btn3 = st.columns([1, 1.5, 1])
+    with col_btn2:
+        confirm_order = st.button("✅ ยืนยันการสั่งซื้อสินค้า")
+
+    if confirm_order:
+        now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        st.balloons()
+        st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกรายการเมื่อ: {now}")
         
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("✅ ยืนยันการสั่งซื้อสินค้า"):
-            now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            st.balloons()
-            st.success(f"สั่งซื้อสำเร็จ! บันทึกรายการเมื่อ: {now}")
+        if "1." in pay_choice:
+            st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
+            st.markdown("<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size: 21px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {final_price:,.2f} บาท</b></p>", unsafe_allow_html=True)
             
-            if "1." in pay_choice:
-                st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
-                st.markdown("<p style='font-size: 17px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='font-size: 19px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {final_price:,.2f} บาท</b></p>", unsafe_allow_html=True)
-                
-                # --- สร้าง QR Code พร้อมเพย์ขนาดพอดีช่องขวา ---
-                st.markdown("<br>", unsafe_allow_html=True)
-                st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน")
-                qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
-                qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={qr_text}"
-                
-                col_q1, col_q2, col_q3 = st.columns([0.5, 2, 0.5])
-                with col_q2:
-                    st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=250)
-            else:
-                price_floor = math.floor(final_price)
-                st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-                st.markdown(f"<p style='font-size: 17px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
-                
-        st.markdown('</div>', unsafe_allow_html=True)
+            # --- สร้าง QR Code พร้อมเพย์ขนาดใหญ่สวยงาม ---
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)")
+            qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
+            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_text}"
+            
+            q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
+            with q_col2:
+                st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=300)
+        else:
+            price_floor = math.floor(final_price)
+            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
+            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_
