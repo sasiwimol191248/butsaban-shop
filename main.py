@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS บังคับเปลี่ยนสีปุ่มจัดการสินค้าในตะกร้าให้เป็นสีขาวขุ่นชัดเจน
+# ตกแต่ง CSS บังคับตัวหนังสือสัญลักษณ์ในปุ่มให้เป็นสีเหลืองสว่างตัดกับส้มชัดเจน
 st.markdown("""
     <style>
     html, body, [class*="css"] {
@@ -45,20 +45,14 @@ st.markdown("""
         margin: 15px 0;
     }
     
-    /* 🤍 บังคับปุ่ม (+, -, x) ในตะกร้าให้เป็นสีขาวขุ่น (Soft White) และตัวหนังสือสีดำเข้มเห็นชัด */
-    div[data-testid="column"] div.stButton > button {
-        background-color: #e9ecef !important;
-        color: #212529 !important;
-        border: 1px solid #ced4da !important;
-    }
-    div[data-testid="column"] div.stButton > button:hover {
-        background-color: #dee2e6 !important;
-        color: #000000 !important;
-    }
+    /* ⚡ บังคับสัญลักษณ์ในปุ่มตะกร้าให้เป็นสีเหลืองนีออนสว่างจ้า ตัดกับพื้นส้มเห็นชัดล้านเปอร์เซ็นต์ */
     div[data-testid="column"] div.stButton > button p {
-        color: #212529 !important;
-        font-size: 20px !important;
-        font-weight: bold !important;
+        color: #ffec99 !important;
+        font-size: 22px !important;
+        font-weight: 900 !important;
+    }
+    div[data-testid="column"] div.stButton > button {
+        border: 2px solid #fff !important;
     }
 
     /* 🔴 ปุ่มล้างตะกร้าสินค้าทั้งหมด (สีแดง) */
@@ -74,6 +68,7 @@ st.markdown("""
     }
     div.stButton > button[kind="secondary"] p {
         color: white !important;
+        font-size: 18px !important;
     }
     div.stButton > button[kind="secondary"]:hover {
         background-color: #c92a2a !important;
@@ -92,6 +87,7 @@ st.markdown("""
     }
     div.stButton > button[kind="primary"] p {
         color: white !important;
+        font-size: 18px !important;
     }
     div.stButton > button[kind="primary"]:hover {
         background-color: #237032 !important;
@@ -309,7 +305,7 @@ if st.session_state.cart:
         
         if "1." in pay_choice:
             st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
-            st.markdown("<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
+            st.markdown("<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
             st.markdown(f"<p style='font-size: 21px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {final_price:,.2f} บาท</b></p>", unsafe_allow_html=True)
             
             st.markdown("<br>", unsafe_allow_html=True)
