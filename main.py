@@ -237,4 +237,9 @@ if st.session_state.cart:
             col_q1, col_q2, col_q3 = st.columns([1, 1.2, 1])
             with col_q2:
                 st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=320)
-        else
+        else:
+            price_floor = math.floor(final_price)
+            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
+            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
+            
+    st.markdown('</div>', unsafe_allow_html=True)
