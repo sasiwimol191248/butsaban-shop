@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS
+# ตกแต่ง CSS กำหนดสีปุ่มล้างตะกร้า (แดง) และปุ่มยืนยัน (เขียว) ให้อยู่ข้างกันอย่างสวยงาม
 st.markdown("""
     <style>
     html, body, [class*="css"] {
@@ -44,29 +44,37 @@ st.markdown("""
         font-weight: bold;
         margin: 15px 0;
     }
-    /* ปุ่มล้างตะกร้า (สีแดง) */
-    .stButton>button {
-        width: 100%;
-        background-color: #e03131;
-        color: white;
-        border-radius: 10px;
-        font-weight: bold;
-        border: none;
-        padding: 0.7rem;
-        font-size: 18px !important;
-        transition: background-color 0.2s;
-    }
-    .stButton>button:hover {
-        background-color: #c92a2a;
-        color: white;
-    }
     
-    /* 🟢 ปุ่มยืนยันการสั่งซื้อสินค้า (ปรับเป็นสีเขียวเด่นชัด) */
+    /* 🔴 ปุ่มล้างตะกร้าสินค้า (สีแดง) */
     div.stButton > button[kind="secondary"] {
-        background-color: #2b8a3e !important;
+        width: 100% !important;
+        background-color: #e03131 !important;
+        color: white !important;
+        border-radius: 10px !important;
+        font-weight: bold !important;
+        border: none !important;
+        padding: 0.7rem !important;
+        font-size: 18px !important;
     }
     div.stButton > button[kind="secondary"]:hover {
+        background-color: #c92a2a !important;
+        color: white !important;
+    }
+
+    /* 🟢 ปุ่มยืนยันการสั่งซื้อสินค้า (สีเขียว) */
+    div.stButton > button[kind="primary"] {
+        width: 100% !important;
         background-color: #2b8a3e !important;
+        color: white !important;
+        border-radius: 10px !important;
+        font-weight: bold !important;
+        border: none !important;
+        padding: 0.7rem !important;
+        font-size: 18px !important;
+    }
+    div.stButton > button[kind="primary"]:hover {
+        background-color: #237032 !important;
+        color: white !important;
     }
 
     .section-box {
@@ -87,7 +95,7 @@ st.markdown("""
         padding-bottom: 10px;
     }
     
-    /* ขยายขนาดฟอนต์หัวข้อและตัวเลือก Radio ช่องชำระเงินให้ใหญ่เท่ากับ "ราคารวมทั้งหมด" (22px) */
+    /* ขยายขนาดฟอนต์หัวข้อและตัวเลือก Radio ช่องชำระเงิน */
     .stRadio label {
         font-size: 22px !important;
         font-weight: bold !important;
@@ -202,13 +210,18 @@ if st.session_state.cart:
         st.write(f"---")
         st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
         
-        if st.button("🗑️ ล้างตะกร้าสินค้า"):
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # จัดวางปุ่มล้างตะกร้า (สีแดง) และปุ่มยืนยันการสั่งซื้อ (สีเขียว) ไว้เคียงคู่กันในบรรทัดเดียว
+        btn_col1, btn_col2 = st.columns(2)
+        with btn_col1:
+            clear_cart = st.button("🗑️ ล้างตะกร้าสินค้า", type="secondary")
+        with btn_col2:
+            confirm_order = st.button("✅ ยืนยันการสั่งซื้อสินค้า", type="primary")
+            
+        if clear_cart:
             st.session_state.cart = []
             st.rerun()
-            
-        st.markdown("<br>", unsafe_allow_html=True)
-        # 🟢 ย้ายปุ่มยืนยันการสั่งซื้อมาไว้ใต้ตะกร้าสินค้าฝั่งซ้าย และใช้ปุ่มสีเขียวเด่นชัด
-        confirm_order = st.button("✅ ยืนยันการสั่งซื้อสินค้า", type="primary")
 
     with cart_col2:
         st.markdown('<div class="section-header">💳 สรุปยอด & ส่วนลดพิเศษ</div>', unsafe_allow_html=True)
