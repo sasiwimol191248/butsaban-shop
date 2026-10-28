@@ -164,7 +164,6 @@ products = {
     "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
-# ป้องกันบั๊กค่าเก่าใน session_state ให้แปลงเป็น dict เสมอ
 if "cart" not in st.session_state or not isinstance(st.session_state.cart, dict):
     st.session_state.cart = {}
 
@@ -209,11 +208,42 @@ if st.session_state.cart:
         st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าของคุณ</div>', unsafe_allow_html=True)
         total_price = 0.0
         
+        # วนลูปแสดงรายการสินค้า พร้อมปุ่มจัดการรายชิ้น (+ / - / ลบ)
+        items_to_remove = []
         for idx, (name, info) in enumerate(st.session_state.cart.items(), 1):
             qty = info["qty"]
+            u_price = info["price"]
             item_tot = info["total"]
-            st.markdown(f"<p style='font-size: 19px; color: #ffffff;'><b>{idx}.</b> {name} x {qty} = <b>{item_tot:,.2f} บาท</b></p>", unsafe_allow_html=True)
+            
+            # จัดบรรทัดแสดงชื่อสินค้าและปุ่มจัดการรายชิ้นแบบระเบียบ
+            c_item1, c_item2, c_item3, c_item4 = st.columns([2.2, 0.8, 0.8, 0.8])
+            with c_item1:
+                st.markdown(f"<p style='font-size: 18px; color: #ffffff; padding-top: 5px;'><b>{idx}.</b> {name} x {qty}<br><span style='color: #ff8787; font-size: 15px;'>({item_tot:,.2f} บาท)</span></p>", unsafe_allow_html=True)
+            with c_item2:
+                if st.button("➕", key=f"plus_{name}"):
+                    st.session_state.cart[name]["qty"] += 1
+                    st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
+                    st.rerun()
+            with c_item3:
+                if st.button("➖", key=f"minus_{name}"):
+                    if qty > 1:
+                        st.session_state.cart[name]["qty"] -= 1
+                        st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
+                    else:
+                        items_to_remove.append(name)
+                    st.rerun()
+            with c_item4:
+                if st.button("❌", key=f"del_{name}"):
+                    items_to_remove.append(name)
+                    st.rerun()
+                    
             total_price += item_tot
+            
+        # ลบรายการที่ถูกกดกากบาทหรือลดจนหมด
+        for name in items_to_remove:
+            del st.session_state.cart[name]
+            if items_to_remove:
+                st.rerun()
             
         st.write(f"---")
         st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
@@ -222,7 +252,7 @@ if st.session_state.cart:
         
         btn_col1, btn_col2 = st.columns(2)
         with btn_col1:
-            clear_cart = st.button("🗑️ ล้างตะกร้าสินค้า", type="secondary")
+            clear_cart = st.button("🗑️ ล้างตะกร้าทั้งหมด", type="secondary")
         with btn_col2:
             confirm_order = st.button("✅ ยืนยันการสั่งซื้อสินค้า", type="primary")
             
