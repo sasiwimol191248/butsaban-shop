@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS กำหนดสีปุ่มล้างตะกร้า (แดง) และปุ่มยืนยัน (เขียว) ให้อยู่ข้างกันอย่างสวยงาม
+# ตกแต่ง CSS
 st.markdown("""
     <style>
     html, body, [class*="css"] {
@@ -141,7 +141,7 @@ if not st.session_state.logged_in:
 st.sidebar.markdown(f"👤 ผู้ใช้งาน: **{st.session_state.username}**")
 if st.sidebar.button("🚪 ออกจากระบบ"):
     st.session_state.logged_in = False
-    st.session_state.cart = []
+    st.session_state.cart = {}
     st.rerun()
 
 # แสดงผลรูปแบนเนอร์เดี่ยวตรงกลางสวยๆ
@@ -164,8 +164,9 @@ products = {
     "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
+# ปรับโครงสร้างตะกร้าให้เป็น Dictionary เพื่อรวมยอดอัตโนมัติ ไม่ให้สินค้าซ้ำกันเป็นหลายบรรทัด
 if "cart" not in st.session_state:
-    st.session_state.cart = []
+    st.session_state.cart = {}
 
 # แสดงรายการสินค้าแบบ Grid 3 คอลัมน์ (กว้างขวาง สบายตา)
 st.markdown('<div class="section-header" style="border:none; text-align:center;">📋 เมนูสินค้าแนะนำ (เลือกสินค้าที่ชื่นชอบ)</div>', unsafe_allow_html=True)
@@ -187,9 +188,16 @@ for i, key in enumerate(product_keys):
         if st.button(f"➕ สั่งซื้อ {item['name']}", key=f"btn_{key}__"):
             p_name = item["name"]
             u_price = item["price"]
-            item_total = float(u_price * 1)
-            st.session_state.cart.append((p_name, 1, u_price, item_total))
-            st.success(f"เพิ่ม '{p_name}' 1 กระถางลงตะกร้าแล้ว!")
+            
+            # ถ้ารายการนี้มีอยู่แล้วในตะกร้า ให้บวกจำนวนเพิ่มขึ้น 1
+            if p_name in st.session_state.cart:
+                st.session_state.cart[p_name]["qty"] += 1
+                st.session_state.cart[p_name]["total"] = st.session_state.cart[p_name]["qty"] * u_price
+            else:
+                # ถ้ายังไม่มี ให้สร้างรายการใหม่
+                st.session_state.cart[p_name] = {"qty": 1, "price": u_price, "total": u_price}
+                
+            st.success(f"เพิ่ม '{p_name}' ลงในตะกร้าแล้ว!")
 
 # ==========================================
 # ส่วนด้านล่าง: ตะกร้าสินค้าและระบบชำระเงิน
@@ -202,8 +210,11 @@ if st.session_state.cart:
     with cart_col1:
         st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าของคุณ</div>', unsafe_allow_html=True)
         total_price = 0.0
-        for idx, item in enumerate(st.session_state.cart, 1):
-            name, qty, u_price, item_tot = item
+        
+        # วนลูปแสดงรายการสินค้าที่รวมยอดแล้ว
+        for idx, (name, info) in enumerate(st.session_state.cart.items(), 1):
+            qty = info["qty"]
+            item_tot = info["total"]
             st.markdown(f"<p style='font-size: 19px; color: #ffffff;'><b>{idx}.</b> {name} x {qty} = <b>{item_tot:,.2f} บาท</b></p>", unsafe_allow_html=True)
             total_price += item_tot
             
@@ -212,7 +223,6 @@ if st.session_state.cart:
         
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # จัดวางปุ่มล้างตะกร้า (สีแดง) และปุ่มยืนยันการสั่งซื้อ (สีเขียว) ไว้เคียงคู่กันในบรรทัดเดียว
         btn_col1, btn_col2 = st.columns(2)
         with btn_col1:
             clear_cart = st.button("🗑️ ล้างตะกร้าสินค้า", type="secondary")
@@ -220,13 +230,13 @@ if st.session_state.cart:
             confirm_order = st.button("✅ ยืนยันการสั่งซื้อสินค้า", type="primary")
             
         if clear_cart:
-            st.session_state.cart = []
+            st.session_state.cart = {}
             st.rerun()
 
     with cart_col2:
         st.markdown('<div class="section-header">💳 สรุปยอด & ส่วนลดพิเศษ</div>', unsafe_allow_html=True)
         
-        total_price = sum(item[3] for item in st.session_state.cart)
+        total_price = sum(info["total"] for info in st.session_state.cart.values())
         
         if "discount_percent" not in st.session_state:
             st.session_state.discount_percent = random.randint(5, 20)
@@ -269,6 +279,4 @@ if st.session_state.cart:
         else:
             price_floor = math.floor(final_price)
             st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับ
