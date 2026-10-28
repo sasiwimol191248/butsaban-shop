@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS บังคับตัวหนังสือสัญลักษณ์ในปุ่มให้เป็นสีเหลืองสว่างตัดกับส้มชัดเจน
+# ตกแต่ง CSS
 st.markdown("""
     <style>
     html, body, [class*="css"] {
@@ -44,18 +44,8 @@ st.markdown("""
         font-weight: bold;
         margin: 15px 0;
     }
-    
-    /* ⚡ บังคับสัญลักษณ์ในปุ่มตะกร้าให้เป็นสีเหลืองนีออนสว่างจ้า ตัดกับพื้นส้มเห็นชัดล้านเปอร์เซ็นต์ */
-    div[data-testid="column"] div.stButton > button p {
-        color: #ffec99 !important;
-        font-size: 22px !important;
-        font-weight: 900 !important;
-    }
-    div[data-testid="column"] div.stButton > button {
-        border: 2px solid #fff !important;
-    }
 
-    /* 🔴 ปุ่มล้างตะกร้าสินค้าทั้งหมด (สีแดง) */
+    /* ปุ่มล้างตะกร้าสินค้าทั้งหมด (สีแดง) */
     div.stButton > button[kind="secondary"] {
         width: 100% !important;
         background-color: #e03131 !important;
@@ -74,7 +64,7 @@ st.markdown("""
         background-color: #c92a2a !important;
     }
 
-    /* 🟢 ปุ่มยืนยันการสั่งซื้อสินค้า (สีเขียว) */
+    /* ปุ่มยืนยันการสั่งซื้อสินค้า (สีเขียว) */
     div.stButton > button[kind="primary"] {
         width: 100% !important;
         background-color: #2b8a3e !important;
@@ -311,14 +301,4 @@ if st.session_state.cart:
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)")
             qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
-            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_text}"
-            
-            q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
-            with q_col2:
-                st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=300)
-        else:
-            price_floor = math.floor(final_price)
-            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+            qr_url = f"
