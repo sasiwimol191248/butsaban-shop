@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS เปลี่ยนสีปุ่ม (+, -, x) ให้เป็นสีสว่าง มองเห็นชัดเจน
+# ตกแต่ง CSS บังคับเปลี่ยนสีปุ่มจัดการสินค้าในตะกร้าให้เป็นสีขาวขุ่นชัดเจน
 st.markdown("""
     <style>
     html, body, [class*="css"] {
@@ -45,20 +45,19 @@ st.markdown("""
         margin: 15px 0;
     }
     
-    /* 🔘 ปรับปุ่มบวก ลบ กากบาท ในตะกร้าให้เป็นสีสว่าง (สีเทาอ่อน/ขาว) ตัวหนังสือเข้มเห็นชัดเจน */
-    div.stButton > button {
-        background-color: #f1f3f5 !important;
+    /* 🤍 บังคับปุ่ม (+, -, x) ในตะกร้าให้เป็นสีขาวขุ่น (Soft White) และตัวหนังสือสีดำเข้มเห็นชัด */
+    div[data-testid="column"] div.stButton > button {
+        background-color: #e9ecef !important;
         color: #212529 !important;
         border: 1px solid #ced4da !important;
-        font-weight: bold !important;
     }
-    div.stButton > button:hover {
-        background-color: #e9ecef !important;
+    div[data-testid="column"] div.stButton > button:hover {
+        background-color: #dee2e6 !important;
         color: #000000 !important;
     }
-    div.stButton > button p {
+    div[data-testid="column"] div.stButton > button p {
         color: #212529 !important;
-        font-size: 18px !important;
+        font-size: 20px !important;
         font-weight: bold !important;
     }
 
@@ -310,7 +309,7 @@ if st.session_state.cart:
         
         if "1." in pay_choice:
             st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
-            st.markdown("<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
+            st.markdown("<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
             st.markdown(f"<p style='font-size: 21px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {final_price:,.2f} บาท</b></p>", unsafe_allow_html=True)
             
             st.markdown("<br>", unsafe_allow_html=True)
