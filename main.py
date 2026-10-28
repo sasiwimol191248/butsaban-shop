@@ -214,39 +214,41 @@ if st.session_state.cart:
         st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าของคุณ</div>', unsafe_allow_html=True)
         total_price = 0.0
         
-        items_to_remove = []
+        # ใช้ list สำรองสำหรับเก็บชื่อสินค้าที่ต้องการลบในรอบนี้
+        target_to_remove = None
+        
         for idx, (name, info) in enumerate(st.session_state.cart.items(), 1):
             qty = info["qty"]
             u_price = info["price"]
             item_tot = info["total"]
             
-            c_item1, c_item2, c_item3, c_item4 = st.columns([2.2, 0.8, 0.8, 0.8])
+            c_item1, c_item2, c_item3, c_item4 = st.columns([1.8, 1, 1, 1])
             with c_item1:
                 st.markdown(f"<p style='font-size: 18px; color: #ffffff; padding-top: 5px;'><b>{idx}.</b> {name} x {qty}<br><span style='color: #ff8787; font-size: 15px;'>({item_tot:,.2f} บาท)</span></p>", unsafe_allow_html=True)
             with c_item2:
-                if st.button("➕", key=f"plus_{name}"):
+                if st.button("➕ เพิ่ม", key=f"plus_{name}"):
                     st.session_state.cart[name]["qty"] += 1
                     st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
                     st.rerun()
             with c_item3:
-                if st.button("➖", key=f"minus_{name}"):
+                if st.button("➖ ลด", key=f"minus_{name}"):
                     if qty > 1:
                         st.session_state.cart[name]["qty"] -= 1
                         st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
                     else:
-                        items_to_remove.append(name)
+                        target_to_remove = name
                     st.rerun()
             with c_item4:
-                if st.button("❌", key=f"del_{name}"):
-                    items_to_remove.append(name)
+                if st.button("❌ ลบ", key=f"del_{name}"):
+                    target_to_remove = name
                     st.rerun()
                     
             total_price += item_tot
             
-        for name in items_to_remove:
-            del st.session_state.cart[name]
-            if items_to_remove:
-                st.rerun()
+        # ดำเนินการลบสินค้าออกทันทีถ้ามีการกดปุ่มลบหรือลดจนหมด
+        if target_to_remove and target_to_remove in st.session_state.cart:
+            del st.session_state.cart[target_to_remove]
+            st.rerun()
             
         st.write(f"---")
         st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
@@ -267,3 +269,48 @@ if st.session_state.cart:
         st.markdown('<div class="section-header">💳 สรุปยอด & ส่วนลดพิเศษ</div>', unsafe_allow_html=True)
         
         total_price = sum(info["total"] for info in st.session_state.cart.values())
+        
+        if "discount_percent" not in st.session_state:
+            st.session_state.discount_percent = random.randint(5, 20)
+            st.session_state.luck_msg = random.choice([
+                "ยินดีด้วย! คุณได้รับส่วนลดพิเศษประจำวัน",
+                "ขอบคุณที่สนับสนุนร้าน Butsaban ขอให้มีความสุขมากๆ นะคะ",
+                "ดอกไม้น่ารักๆ เหมาะกับวันพิเศษของคุณ!"
+            ])
+            
+        disc_pct = st.session_state.discount_percent
+        luck_msg = st.session_state.luck_msg
+        disc_amount = total_price * (disc_pct / 100)
+        final_price = total_price - disc_amount
+        
+        st.success(f"🎁 **ข้อความจากร้าน:** {luck_msg}")
+        st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🏷️ <b>ส่วนลด:</b> {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)</p>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='color: #ff6b6b;'>✨ ยอดสุทธิที่ต้องชำระ: <b>{final_price:,.2f} บาท</b></h3>", unsafe_allow_html=True)
+        
+        pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"))
+
+    if confirm_order:
+        st.markdown("---")
+        now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        st.balloons()
+        st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกรายการเมื่อ: {now}")
+        
+        if "1." in pay_choice:
+            st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
+            st.markdown("<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size: 21px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {final_price:,.2f} บาท</b></p>", unsafe_allow_html=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)")
+            qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
+            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_text}"
+            
+            q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
+            with q_col2:
+                st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=300)
+        else:
+            price_floor = math.floor(final_price)
+            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
+            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
