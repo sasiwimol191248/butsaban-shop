@@ -164,7 +164,6 @@ products = {
     "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
-# ปรับโครงสร้างตะกร้าให้เป็น Dictionary เพื่อรวมยอดอัตโนมัติ ไม่ให้สินค้าซ้ำกันเป็นหลายบรรทัด
 if "cart" not in st.session_state:
     st.session_state.cart = {}
 
@@ -189,12 +188,10 @@ for i, key in enumerate(product_keys):
             p_name = item["name"]
             u_price = item["price"]
             
-            # ถ้ารายการนี้มีอยู่แล้วในตะกร้า ให้บวกจำนวนเพิ่มขึ้น 1
             if p_name in st.session_state.cart:
                 st.session_state.cart[p_name]["qty"] += 1
                 st.session_state.cart[p_name]["total"] = st.session_state.cart[p_name]["qty"] * u_price
             else:
-                # ถ้ายังไม่มี ให้สร้างรายการใหม่
                 st.session_state.cart[p_name] = {"qty": 1, "price": u_price, "total": u_price}
                 
             st.success(f"เพิ่ม '{p_name}' ลงในตะกร้าแล้ว!")
@@ -211,7 +208,6 @@ if st.session_state.cart:
         st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าของคุณ</div>', unsafe_allow_html=True)
         total_price = 0.0
         
-        # วนลูปแสดงรายการสินค้าที่รวมยอดแล้ว
         for idx, (name, info) in enumerate(st.session_state.cart.items(), 1):
             qty = info["qty"]
             item_tot = info["total"]
@@ -271,12 +267,4 @@ if st.session_state.cart:
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)")
             qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
-            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_text}"
-            
-            q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
-            with q_col2:
-                st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=300)
-        else:
-            price_floor = math.floor(final_price)
-            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับ
+            qr_url = f
