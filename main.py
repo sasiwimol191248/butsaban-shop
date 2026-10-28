@@ -101,7 +101,6 @@ st.markdown("""
         padding-bottom: 10px;
     }
     
-    /* ขยายขนาดฟอนต์หัวข้อและตัวเลือก Radio ช่องชำระเงิน */
     .stRadio label {
         font-size: 22px !important;
         font-weight: bold !important;
@@ -114,43 +113,115 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 0. ระบบตรวจสอบการเข้าสู่ระบบ (Login System)
+# 1. กำหนดค่าเริ่มต้นระบบ (Session State)
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
+if "username" not in st.session_state:
+    st.session_state.username = ""
+if "is_admin" not in st.session_state:
+    st.session_state.is_admin = False
+if "cart" not in st.session_state:
+    st.session_state.cart = {}
+if "registered_users" not in st.session_state:
+    # ฐานข้อมูลสมาชิกจำลองเริ่มต้น (มีแอดมินและลูกค้าตัวอย่าง)
+    st.session_state.registered_users = {"admin": "1234", "customer01": "password"}
+if "orders_db" not in st.session_state:
+    # เก็บประวัติออเดอร์ทั้งหมดของร้านสำหรับเจ้าของร้านดู
+    st.session_state.orders_db = []
 
+# ==========================================
+# 2. หน้าล็อกอิน และ สมัครสมาชิก (Authentication)
+# ==========================================
 if not st.session_state.logged_in:
     st.markdown("<br><br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 1.3, 1])
+    col1, col2, col3 = st.columns([1, 1.4, 1])
     with col2:
         st.markdown("<h2 style='text-align: center; color: #ff6b6b; margin-bottom: 10px; font-size: 38px;'>🌹 ร้าน Butsaban</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #aaa; font-size: 18px; margin-bottom: 30px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #aaa; font-size: 18px; margin-bottom: 20px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
         
-        with st.form("login_form"):
-            username = st.text_input("ชื่อผู้ใช้งาน (Username)")
-            password = st.text_input("รหัสผ่าน (Password)", type="password")
-            submit_login = st.form_submit_button("🔑 เข้าสู่ระบบ")
+        tab_login, tab_reg = st.tabs(["🔑 เข้าสู่ระบบ", "📝 สมัครสมาชิกใหม่"])
+        
+        # แท็บเข้าสู่ระบบ
+        with tab_login:
+            with st.form("login_form"):
+                l_user = st.text_input("ชื่อผู้ใช้งาน (Username)")
+                l_pass = st.text_input("รหัสผ่าน (Password)", type="password")
+                submit_login = st.form_submit_button("🚀 เข้าสู่ระบบ")
+                
+                if submit_login:
+                    if l_user in st.session_state.registered_users and st.session_state.registered_users[l_user] == l_pass:
+                        st.session_state.logged_in = True
+                        st.session_state.username = l_user
+                        if l_user == "admin":
+                            st.session_state.is_admin = True
+                        else:
+                            st.session_state.is_admin = False
+                        st.success("เข้าสู่ระบบสำเร็จ!")
+                        st.rerun()
+                    else:
+                        st.error("⚠️ ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง")
             
-            if submit_login:
-                if username != "" and password != "":
-                    st.session_state.logged_in = True
-                    st.session_state.username = username
-                    st.success("เข้าสู่ระบบสำเร็จ!")
-                    st.rerun()
-                else:
-                    st.error("⚠️ กรุณากรอกข้อมูลให้ครบถ้วน")
-        
-        st.info("💡 *พิมพ์ชื่ออะไรก็ได้เพื่อเข้าสู่ระบบทดลอง*")
+            st.info("💡 **ทดลองเข้าสู่ระบบ:**\n* ลูกค้าทั่วไป: พิมพ์ชื่ออะไรก็ได้ (เช่น `test` / รหัสอะไรก็ได้)\n* เจ้าของร้าน (Admin): Username: `admin` | Password: `1234`")
+
+        # แท็บสมัครสมาชิก
+        with tab_reg:
+            with st.form("reg_form"):
+                r_user = st.text_input("กำหนดชื่อผู้ใช้งาน (Username)")
+                r_pass = st.text_input("กำหนดรหัสผ่าน (Password)", type="password")
+                submit_reg = st.form_submit_button("✨ สมัครสมาชิก")
+                
+                if submit_reg:
+                    if r_user != "" and r_pass != "":
+                        if r_user in st.session_state.registered_users:
+                            st.error("⚠️ ชื่อผู้ใช้งานนี้มีคนใช้แล้ว กรุณาใช้ชื่ออื่น")
+                        else:
+                            st.session_state.registered_users[r_user] = r_pass
+                            st.success("🎉 สมัครสมาชิกสำเร็จ! สามารถสลับไปที่แท็บ 'เข้าสู่ระบบ' เพื่อใช้งานได้เลย")
+                    else:
+                        st.error("⚠️ กรุณากรอกข้อมูลให้ครบถ้วน")
     
     st.stop()
 
-# --- ส่วนของเว็บไซต์หลัก (หลัง Log-in สำเร็จแล้ว) ---
-st.sidebar.markdown(f"👤 ผู้ใช้งาน: **{st.session_state.username}**")
+# ==========================================
+# 3. หน้าหลังบ้านเจ้าของร้าน (Admin Dashboard)
+# ==========================================
+if st.session_state.is_admin:
+    st.sidebar.markdown(f"👑 ผู้ดูแลระบบ: **{st.session_state.username}**")
+    if st.sidebar.button("🚪 ออกจากระบบ"):
+        st.session_state.logged_in = False
+        st.session_state.is_admin = False
+        st.rerun()
+
+    st.markdown("<h1 style='color: #ff6b6b; text-align: center;'>👑 ระบบหลังบ้านเจ้าของร้าน (Admin Dashboard)</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #aaa;'>หน้าสำหรับตรวจสอบรายการออเดอร์ที่ลูกค้าสั่งซื้อเข้ามาทั้งหมด</p>", unsafe_allow_html=True)
+    st.write("---")
+
+    if not st.session_state.orders_db:
+        st.info("📭 ยังไม่มีออเดอร์สั่งซื้อสินค้าเข้ามาในระบบตอนนี้")
+    else:
+        st.markdown(f"### 📦 รายการออเดอร์ทั้งหมด ({len(st.session_state.orders_db)} ออเดอร์)")
+        for idx, order in enumerate(reversed(st.session_state.orders_db), 1):
+            with st.expander(f"ออเดอร์ที่ #{len(st.session_state.orders_db) - idx + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท ({order['time']})"):
+                st.write(f"⏱️ **เวลาที่สั่งซื้อ:** {order['time']}")
+                st.write(f"👤 **ชื่อลูกค้า:** {order['customer']}")
+                st.write(f"💳 **ช่องชำระเงิน:** {order['pay_type']}")
+                st.write("🛒 **รายการสินค้า:**")
+                for item_name, details in order['items'].items():
+                    st.markdown(f"- {item_name} x {details['qty']} กระถาง (ราคา {details['total']:,.2f} บาท)")
+                st.markdown(f"**✨ ยอดสุทธิหลังหักส่วนลด: {order['total']:,.2f} บาท**")
+                
+    st.stop() # หยุดการทำงานไม่ให้แสดงหน้าเว็บลูกค้า
+
+# ==========================================
+# 4. หน้าเว็บไซต์หลักของลูกค้า (Customer Storefront)
+# ==========================================
+st.sidebar.markdown(f"👤 ลูกค้า: **{st.session_state.username}**")
 if st.sidebar.button("🚪 ออกจากระบบ"):
     st.session_state.logged_in = False
     st.session_state.cart = {}
     st.rerun()
 
-# แสดงผลรูปแบนเนอร์เดี่ยวตรงกลางสวยๆ
+# แสดงผลรูปแบนเนอร์
 try:
     col_h1, col_h2, col_h3 = st.columns([1, 2.5, 1])
     with col_h2:
@@ -160,7 +231,7 @@ except:
 
 st.write("---")
 
-# 1. ข้อมูลรายการสินค้า
+# ข้อมูลรายการสินค้า
 products = {
     "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
     "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
@@ -170,10 +241,7 @@ products = {
     "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
-if "cart" not in st.session_state or not isinstance(st.session_state.cart, dict):
-    st.session_state.cart = {}
-
-# แสดงรายการสินค้าแบบ Grid 3 คอลัมน์ (กว้างขวาง สบายตา)
+# แสดงรายการสินค้าแบบ Grid 3 คอลัมน์
 st.markdown('<div class="section-header" style="border:none; text-align:center;">📋 เมนูสินค้าแนะนำ (เลือกสินค้าที่ชื่นชอบ)</div>', unsafe_allow_html=True)
 cols = st.columns(3)
 product_keys = list(products.keys())
@@ -203,7 +271,7 @@ for i, key in enumerate(product_keys):
             st.success(f"เพิ่ม '{p_name}' ลงในตะกร้าแล้ว!")
 
 # ==========================================
-# ส่วนด้านล่าง: ตะกร้าสินค้าและระบบชำระเงิน
+# ตะกร้าสินค้าและระบบชำระเงิน
 # ==========================================
 if st.session_state.cart:
     st.markdown('<div class="section-box">', unsafe_allow_html=True)
@@ -214,7 +282,6 @@ if st.session_state.cart:
         st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าของคุณ</div>', unsafe_allow_html=True)
         total_price = 0.0
         
-        # คัดลอกรายการคีย์สินค้าออกมาก่อนเพื่อป้องกันข้อผิดพลาดเวลาลบไอเทมในลูป
         cart_items_list = list(st.session_state.cart.items())
         
         for idx, (name, info) in enumerate(cart_items_list, 1):
@@ -285,9 +352,21 @@ if st.session_state.cart:
         
         pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"))
 
+    # เมื่อลูกค้ากดปุ่มยืนยันการสั่งซื้อ บันทึกลงฐานข้อมูลร้านค้าทันที
     if confirm_order:
-        st.markdown("---")
         now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        
+        # บันทึกออเดอร์เข้าสู่ฐานข้อมูลหลังบ้าน (Admin Orders DB)
+        new_order = {
+            "time": now,
+            "customer": st.session_state.username,
+            "items": st.session_state.cart.copy(),
+            "total": final_price,
+            "pay_type": pay_choice
+        }
+        st.session_state.orders_db.append(new_order)
+        
+        st.markdown("---")
         st.balloons()
         st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกรายการเมื่อ: {now}")
         
