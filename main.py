@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS
+# ตกแต่ง CSS ปรับสีตัวอักษรและสัญลักษณ์ในปุ่มตะกร้าให้เป็นสีขาวชัดเจน
 st.markdown("""
     <style>
     html, body, [class*="css"] {
@@ -45,7 +45,17 @@ st.markdown("""
         margin: 15px 0;
     }
     
-    /* 🔴 ปุ่มล้างตะกร้าสินค้า (สีแดง) */
+    /* 🔴 ปรับปุ่มจัดการสินค้าในตะกร้า (+, -, x) และปุ่มล้างตะกร้าให้ตัวอักษร/สัญลักษณ์เป็นสีขาวเด่นชัด */
+    div.stButton > button {
+        color: white !important;
+    }
+    div.stButton > button p {
+        color: white !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+    }
+
+    /* 🔴 ปุ่มล้างตะกร้าสินค้าทั้งหมด (สีแดง) */
     div.stButton > button[kind="secondary"] {
         width: 100% !important;
         background-color: #e03131 !important;
@@ -208,14 +218,12 @@ if st.session_state.cart:
         st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าของคุณ</div>', unsafe_allow_html=True)
         total_price = 0.0
         
-        # วนลูปแสดงรายการสินค้า พร้อมปุ่มจัดการรายชิ้น (+ / - / ลบ)
         items_to_remove = []
         for idx, (name, info) in enumerate(st.session_state.cart.items(), 1):
             qty = info["qty"]
             u_price = info["price"]
             item_tot = info["total"]
             
-            # จัดบรรทัดแสดงชื่อสินค้าและปุ่มจัดการรายชิ้นแบบระเบียบ
             c_item1, c_item2, c_item3, c_item4 = st.columns([2.2, 0.8, 0.8, 0.8])
             with c_item1:
                 st.markdown(f"<p style='font-size: 18px; color: #ffffff; padding-top: 5px;'><b>{idx}.</b> {name} x {qty}<br><span style='color: #ff8787; font-size: 15px;'>({item_tot:,.2f} บาท)</span></p>", unsafe_allow_html=True)
@@ -239,7 +247,6 @@ if st.session_state.cart:
                     
             total_price += item_tot
             
-        # ลบรายการที่ถูกกดกากบาทหรือลดจนหมด
         for name in items_to_remove:
             del st.session_state.cart[name]
             if items_to_remove:
@@ -298,14 +305,4 @@ if st.session_state.cart:
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)")
             qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
-            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_text}"
-            
-            q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
-            with q_col2:
-                st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=300)
-        else:
-            price_floor = math.floor(final_price)
-            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+            qr_url =
