@@ -44,6 +44,7 @@ st.markdown("""
         font-weight: bold;
         margin: 15px 0;
     }
+    /* ปุ่มล้างตะกร้า (สีแดง) */
     .stButton>button {
         width: 100%;
         background-color: #e03131;
@@ -59,6 +60,15 @@ st.markdown("""
         background-color: #c92a2a;
         color: white;
     }
+    
+    /* 🟢 ปุ่มยืนยันการสั่งซื้อสินค้า (ปรับเป็นสีเขียวเด่นชัด) */
+    div.stButton > button[kind="secondary"] {
+        background-color: #2b8a3e !important;
+    }
+    div.stButton > button[kind="secondary"]:hover {
+        background-color: #2b8a3e !important;
+    }
+
     .section-box {
         background-color: #181818;
         padding: 30px;
@@ -77,14 +87,14 @@ st.markdown("""
         padding-bottom: 10px;
     }
     
-    /* ขยายขนาดฟอนต์หัวข้อและตัวเลือก Radio ช่องชำระเงินให้ใหญ่เท่าตะกร้าสินค้า */
+    /* ขยายขนาดฟอนต์หัวข้อและตัวเลือก Radio ช่องชำระเงินให้ใหญ่เท่ากับ "ราคารวมทั้งหมด" (22px) */
     .stRadio label {
-        font-size: 19px !important;
+        font-size: 22px !important;
         font-weight: bold !important;
         color: #ffffff !important;
     }
     .stRadio div[role="radiogroup"] label p {
-        font-size: 19px !important;
+        font-size: 20px !important;
         color: #ffffff !important;
     }
     </style>
@@ -195,6 +205,10 @@ if st.session_state.cart:
         if st.button("🗑️ ล้างตะกร้าสินค้า"):
             st.session_state.cart = []
             st.rerun()
+            
+        st.markdown("<br>", unsafe_allow_html=True)
+        # 🟢 ย้ายปุ่มยืนยันการสั่งซื้อมาไว้ใต้ตะกร้าสินค้าฝั่งซ้าย และใช้ปุ่มสีเขียวเด่นชัด
+        confirm_order = st.button("✅ ยืนยันการสั่งซื้อสินค้า", type="primary")
 
     with cart_col2:
         st.markdown('<div class="section-header">💳 สรุปยอด & ส่วนลดพิเศษ</div>', unsafe_allow_html=True)
@@ -220,13 +234,8 @@ if st.session_state.cart:
         
         pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"))
 
-    st.markdown("---")
-    
-    col_btn1, col_btn2, col_btn3 = st.columns([1, 1.5, 1])
-    with col_btn2:
-        confirm_order = st.button("✅ ยืนยันการสั่งซื้อสินค้า")
-
     if confirm_order:
+        st.markdown("---")
         now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         st.balloons()
         st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกรายการเมื่อ: {now}")
