@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS ให้ฟอนต์ตัวเลือกชำระเงินใหญ่เท่ากับรายการตะกร้าสินค้า
+# ตกแต่ง CSS
 st.markdown("""
     <style>
     html, body, [class*="css"] {
@@ -77,7 +77,7 @@ st.markdown("""
         padding-bottom: 10px;
     }
     
-    /* 🔍 ขยายขนาดฟอนต์หัวข้อและตัวเลือก Radio ช่องชำระเงินให้ใหญ่เท่าตะกร้าสินค้า */
+    /* ขยายขนาดฟอนต์หัวข้อและตัวเลือก Radio ช่องชำระเงินให้ใหญ่เท่าตะกร้าสินค้า */
     .stRadio label {
         font-size: 19px !important;
         font-weight: bold !important;
@@ -238,4 +238,15 @@ if st.session_state.cart:
             
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)")
-            qr_text = f"PromptPay
+            qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
+            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_text}"
+            
+            q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
+            with q_col2:
+                st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=300)
+        else:
+            price_floor = math.floor(final_price)
+            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
+            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
