@@ -2,32 +2,9 @@ import streamlit as st
 import datetime
 import math
 import random
-import json
-import os
 
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
-
-# ไฟล์สำหรับบันทึกข้อมูล
-ORDERS_FILE = "orders.json"
-USERS_FILE = "users.json"
-
-def load_json(filename, default_data):
-    if os.path.exists(filename):
-        try:
-            with open(filename, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except:
-            return default_data
-    return default_data
-
-def save_json(filename, data):
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-
-# โหลดข้อมูลผู้ใช้และออเดอร์จากไฟล์ (ถ้ายังไม่มีใช้ค่าเริ่มต้น)
-initial_users = {"admin": "1234", "customer01": "password"}
-registered_users = load_json(USERS_FILE, initial_users)
 
 # ตกแต่ง CSS
 st.markdown("""
@@ -143,6 +120,12 @@ if "is_admin" not in st.session_state:
     st.session_state.is_admin = False
 if "cart" not in st.session_state:
     st.session_state.cart = {}
+if "registered_users" not in st.session_state:
+    # ฐานข้อมูลสมาชิกรวม Admin และลูกค้าที่สมัครผ่านเว็บ
+    st.session_state.registered_users = {"admin": "1234", "ใบไผ่": "112233", "customer01": "password"}
+if "orders_db" not in st.session_state:
+    # ฐานข้อมูลออเดอร์ในหน่วยความจำกลาง
+    st.session_state.orders_db = []
 
 # ==========================================
 # 2. หน้าล็อกอิน และ สมัครสมาชิก
@@ -163,8 +146,7 @@ if not st.session_state.logged_in:
                 submit_login = st.form_submit_button("🚀 เข้าสู่ระบบ")
                 
                 if submit_login:
-                    users = load_json(USERS_FILE, initial_users)
-                    if l_user in users and users[l_user] == l_pass:
+                    if l_user in st.session_state.registered_users and st.session_state.registered_users[l_user] == l_pass:
                         st.session_state.logged_in = True
                         st.session_state.username = l_user
                         if l_user == "admin":
@@ -176,7 +158,7 @@ if not st.session_state.logged_in:
                     else:
                         st.error("⚠️ ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง")
             
-            st.info("💡 **ทดลองเข้าสู่ระบบ:**\n* ลูกค้าทั่วไป: สมัครใหม่ หรือพิมพ์ชื่ออะไรก็ได้\n* เจ้าของร้าน (Admin): Username: `admin` | Password: `1234`")
+            st.info("💡 **คำแนะนำการเข้าสู่ระบบ:**\n* ลูกค้าทั่วไป: สามารถพิมพ์ชื่ออะไรก็ได้ หรือใช้ชื่อที่สมัครสมาชิกไว้\n* เจ้าของร้าน (Admin): Username: `admin` | Password: `1234`")
 
         with tab_reg:
             with st.form("reg_form"):
@@ -186,12 +168,10 @@ if not st.session_state.logged_in:
                 
                 if submit_reg:
                     if r_user != "" and r_pass != "":
-                        users = load_json(USERS_FILE, initial_users)
-                        if r_user in users:
+                        if r_user in st.session_state.registered_users:
                             st.error("⚠️ ชื่อผู้ใช้งานนี้มีคนใช้แล้ว")
                         else:
-                            users[r_user] = r_pass
-                            save_json(USERS_FILE, users)
+                            st.session_state.registered_users[r_user] = r_pass
                             st.success("🎉 สมัครสมาชิกสำเร็จ! สลับไปแท็บ 'เข้าสู่ระบบ' เพื่อใช้งานได้เลย")
                     else:
                         st.error("⚠️ กรุณากรอกข้อมูลให้ครบถ้วน")
@@ -209,17 +189,15 @@ if st.session_state.is_admin:
         st.rerun()
 
     st.markdown("<h1 style='color: #ff6b6b; text-align: center;'>👑 ระบบหลังบ้านเจ้าของร้าน (Admin Dashboard)</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #aaa;'>รายการออเดอร์ทั้งหมดจากลูกค้า (บันทึกจริงลงไฟล์ระบบ)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #aaa;'>หน้าตรวจสอบรายการออเดอร์ที่ลูกค้าสั่งซื้อเข้ามาทั้งหมด</p>", unsafe_allow_html=True)
     st.write("---")
 
-    orders = load_json(ORDERS_FILE, [])
-
-    if not orders:
-        st.info("📭 ยังไม่มีออเดอร์สั่งซื้อสินค้าเข้ามาในระบบตอนนี้")
+    if not st.session_state.orders_db:
+        st.info("📭 ยังไม่มีออเดอร์สั่งซื้อสินค้าเข้ามาในระบบตอนนี้ (ลองไปกดสั่งซื้อสินค้าในฐานะลูกค้าดูก่อนได้เลยครับ)")
     else:
-        st.markdown(f"### 📦 รายการออเดอร์ทั้งหมด ({len(orders)} ออเดอร์)")
-        for idx, order in enumerate(reversed(orders), 1):
-            with st.expander(f"ออเดอร์ที่ #{len(orders) - idx + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท ({order['time']})"):
+        st.markdown(f"### 📦 รายการออเดอร์ทั้งหมด ({len(st.session_state.orders_db)} ออเดอร์)")
+        for idx, order in enumerate(reversed(st.session_state.orders_db), 1):
+            with st.expander(f"ออเดอร์ที่ #{len(st.session_state.orders_db) - idx + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท ({order['time']})"):
                 st.write(f"⏱️ **เวลาที่สั่งซื้อ:** {order['time']}")
                 st.write(f"👤 **ชื่อลูกค้า:** {order['customer']}")
                 st.write(f"💳 **ช่องชำระเงิน:** {order['pay_type']}")
@@ -367,7 +345,7 @@ if st.session_state.cart:
         
         pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"))
 
-    # เมื่อลูกค้ากดปุ่มยืนยันการสั่งซื้อ บันทึกลงไฟล์ JSON ทันที
+    # เมื่อกดปุ่มยืนยันการสั่งซื้อ บันทึกออเดอร์เข้าตาราง Admin ทันที
     if confirm_order:
         now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         
@@ -379,15 +357,12 @@ if st.session_state.cart:
             "pay_type": pay_choice
         }
         
-        orders = load_json(ORDERS_FILE, [])
-        orders.append(new_order)
-        save_json(ORDERS_FILE, orders)
-        
+        st.session_state.orders_db.append(new_order)
         st.session_state.cart = {}
         
         st.markdown("---")
         st.balloons()
-        st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกรายการเมื่อ: {now}")
+        st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกออเดอร์ส่งตรงถึงร้านค้าเมื่อ: {now}")
         
         if "1." in pay_choice:
             st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
