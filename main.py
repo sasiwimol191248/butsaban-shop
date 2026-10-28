@@ -239,4 +239,15 @@ if st.session_state.cart:
         else:
             price_floor = math.floor(final_price)
             st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_
+            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+---
+
+<FollowUp>
+ลองอัปเดตโค้ดนี้ดูครับ กลับมาวางไว้ด้านล่างแบบจัดระเบียบใหม่ 3 คอลัมน์ด้านบน และแบ่งครึ่งซ้าย-ขวาสำหรับตะกร้ากับสรุปยอดด้านล่าง ดูสะอาดตาและใช้งานง่ายขึ้นมากเลยใช่ไหมครับ?
+</FollowUp>
+
+<ElicitationsGroup>
+</ElicitationsGroup>
