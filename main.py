@@ -6,6 +6,15 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
+# ฟังก์ชันดึงเวลาปัจจุบันของประเทศไทย (UTC+7) และแปลงปีเป็น พ.ศ.
+def get_thai_time():
+    # เวลาไทย = UTC + 7 ชั่วโมง
+    thai_time = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    day = thai_time.strftime("%d/%m")
+    year_be = thai_time.year + 543  # แปลง ค.ศ. เป็น พ.ศ.
+    time_str = thai_time.strftime("%H:%M:%S")
+    return f"{day}/{year_be} {time_str}"
+
 # ตกแต่ง CSS
 st.markdown("""
     <style>
@@ -185,7 +194,7 @@ if st.session_state.is_admin:
         st.rerun()
 
     st.markdown("<h1 style='color: #ff6b6b; text-align: center;'>👑 ระบบหลังบ้านเจ้าของร้าน (Admin Dashboard)</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #aaa;'>หน้าตรวจสอบรายการออเดอร์ที่ลูกค้าสั่งซื้อเข้ามาทั้งหมด</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #aaa;'>หน้าตรวจสอบรายการออเดอร์ที่ลูกค้าสั่งซื้อเข้ามาทั้งหมด (เวลาไทย)</p>", unsafe_allow_html=True)
     st.write("---")
 
     if not st.session_state.orders_db:
@@ -194,7 +203,7 @@ if st.session_state.is_admin:
         st.markdown(f"### 📦 รายการออเดอร์ทั้งหมด ({len(st.session_state.orders_db)} ออเดอร์)")
         for idx, order in enumerate(reversed(st.session_state.orders_db), 1):
             with st.expander(f"ออเดอร์ที่ #{len(st.session_state.orders_db) - idx + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท ({order['time']})"):
-                st.write(f"⏱️ **เวลาที่สั่งซื้อ:** {order['time']}")
+                st.write(f"⏱️ **เวลาที่สั่งซื้อ (เวลาไทย):** {order['time']}")
                 st.write(f"👤 **ชื่อลูกค้า:** {order['customer']}")
                 st.write(f"💳 **ช่องชำระเงิน:** {order['pay_type']}")
                 st.write("🛒 **รายการสินค้า:**")
@@ -342,10 +351,10 @@ if st.session_state.cart:
         pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"))
 
     if confirm_order:
-        now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        thai_now = get_thai_time()
         
         new_order = {
-            "time": now,
+            "time": thai_now,
             "customer": st.session_state.username,
             "items": st.session_state.cart.copy(),
             "total": final_price,
@@ -357,7 +366,7 @@ if st.session_state.cart:
         
         st.markdown("---")
         st.balloons()
-        st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกออเดอร์ส่งตรงถึงร้านค้าเมื่อ: {now}")
+        st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกออเดอร์เมื่อเวลาไทย: {thai_now}")
         
         if "1." in pay_choice:
             st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
@@ -373,8 +382,4 @@ if st.session_state.cart:
             with q_col2:
                 st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=300)
         else:
-            price_floor = math.floor(final_price)
-            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+            price_floor = math
