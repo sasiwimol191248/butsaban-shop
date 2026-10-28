@@ -263,7 +263,7 @@ products = {
     "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
-st.markdown('<div class="section-header" style="border:none; text-align:center;">📋 เมนูสินค้าแนะนำ (เลือกสินค้าที่ชื่นชอบ)</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-header" style="border:none; text-align:center;">📋 รายการสินค้าแนะนำ (เลือกสินค้าที่ชื่นชอบ)</div>', unsafe_allow_html=True)
 cols = st.columns(3)
 product_keys = list(products.keys())
 
