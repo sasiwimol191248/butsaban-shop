@@ -8,10 +8,9 @@ st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลว�
 
 # ฟังก์ชันดึงเวลาปัจจุบันของประเทศไทย (UTC+7) และแปลงปีเป็น พ.ศ.
 def get_thai_time():
-    # เวลาไทย = UTC + 7 ชั่วโมง
     thai_time = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
     day = thai_time.strftime("%d/%m")
-    year_be = thai_time.year + 543  # แปลง ค.ศ. เป็น พ.ศ.
+    year_be = thai_time.year + 543
     time_str = thai_time.strftime("%H:%M:%S")
     return f"{day}/{year_be} {time_str}"
 
@@ -194,22 +193,46 @@ if st.session_state.is_admin:
         st.rerun()
 
     st.markdown("<h1 style='color: #ff6b6b; text-align: center;'>👑 ระบบหลังบ้านเจ้าของร้าน (Admin Dashboard)</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #aaa;'>หน้าตรวจสอบรายการออเดอร์ที่ลูกค้าสั่งซื้อเข้ามาทั้งหมด (เวลาไทย)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #aaa;'>จัดการออเดอร์และตรวจสอบหลักฐานการสั่งซื้อของลูกค้า</p>", unsafe_allow_html=True)
     st.write("---")
 
     if not st.session_state.orders_db:
         st.info("📭 ยังไม่มีออเดอร์สั่งซื้อสินค้าเข้ามาในระบบตอนนี้")
     else:
         st.markdown(f"### 📦 รายการออเดอร์ทั้งหมด ({len(st.session_state.orders_db)} ออเดอร์)")
-        for idx, order in enumerate(reversed(st.session_state.orders_db), 1):
-            with st.expander(f"ออเดอร์ที่ #{len(st.session_state.orders_db) - idx + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท ({order['time']})"):
-                st.write(f"⏱️ **เวลาที่สั่งซื้อ (เวลาไทย):** {order['time']}")
-                st.write(f"👤 **ชื่อลูกค้า:** {order['customer']}")
-                st.write(f"💳 **ช่องชำระเงิน:** {order['pay_type']}")
-                st.write("🛒 **รายการสินค้า:**")
-                for item_name, details in order['items'].items():
-                    st.markdown(f"- {item_name} x {details['qty']} กระถาง (ราคา {details['total']:,.2f} บาท)")
-                st.markdown(f"**✨ ยอดสุทธิหลังหักส่วนลด: {order['total']:,.2f} บาท**")
+        
+        for i, order in enumerate(reversed(st.session_state.orders_db)):
+            real_index = len(st.session_state.orders_db) - 1 - i
+            status = order.get("status", "⏳ รอดำเนินการ")
+            
+            # ปรับสีป้ายสถานะ
+            status_badge = f"<span style='color: #ffa94d;'><b>{status}</b></span>" if "รอดำเนินการ" in status else f"<span style='color: #51cf66;'><b>{status}</b></span>"
+            
+            with st.expander(f"ออเดอร์ที่ #{real_index + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท ({order['time']}) [{status}]"):
+                col_info1, col_info2 = st.columns([2, 1])
+                
+                with col_info1:
+                    st.write(f"⏱️ **เวลาที่สั่งซื้อ (เวลาไทย):** {order['time']}")
+                    st.write(f"👤 **ชื่อลูกค้า:** {order['customer']}")
+                    st.write(f"💳 **ช่องชำระเงิน:** {order['pay_type']}")
+                    st.markdown(f"📌 **สถานะออเดอร์:** {status_badge}", unsafe_allow_html=True)
+                    st.write("🛒 **รายการสินค้า:**")
+                    for item_name, details in order['items'].items():
+                        st.markdown(f"- {item_name} x {details['qty']} กระถาง (ราคา {details['total']:,.2f} บาท)")
+                    st.markdown(f"**✨ ยอดสุทธิหลังหักส่วนลด: {order['total']:,.2f} บาท**")
+                
+                with col_info2:
+                    st.markdown("#### ⚙️ จัดการสถานะ")
+                    if status == "⏳ รอดำเนินการ":
+                        if st.button("✅ ทำเสร็จแล้ว / จัดส่งสำเร็จ", key=f"btn_done_{real_index}"):
+                            st.session_state.orders_db[real_index]["status"] = "✅ จัดส่งสำเร็จแล้ว"
+                            st.success("อัปเดตสถานะเป็นสำเร็จแล้ว!")
+                            st.rerun()
+                    else:
+                        if st.button("🔄 เปลี่ยนกลับเป็นรอดำเนินการ", key=f"btn_undo_{real_index}"):
+                            st.session_state.orders_db[real_index]["status"] = "⏳ รอดำเนินการ"
+                            st.success("เปลี่ยนสถานะกลับแล้ว")
+                            st.rerun()
                 
     st.stop()
 
@@ -358,7 +381,8 @@ if st.session_state.cart:
             "customer": st.session_state.username,
             "items": st.session_state.cart.copy(),
             "total": final_price,
-            "pay_type": pay_choice
+            "pay_type": pay_choice,
+            "status": "⏳ รอดำเนินการ"  # เพิ่มสถานะเริ่มต้นของออเดอร์
         }
         
         st.session_state.orders_db.append(new_order)
@@ -382,4 +406,8 @@ if st.session_state.cart:
             with q_col2:
                 st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=300)
         else:
-            price_floor = math
+            price_floor = math.floor(final_price)
+            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
+            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
