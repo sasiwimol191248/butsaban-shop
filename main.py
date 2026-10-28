@@ -214,8 +214,8 @@ if st.session_state.cart:
         st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าของคุณ</div>', unsafe_allow_html=True)
         total_price = 0.0
         
-        # ใช้ list สำรองสำหรับเก็บชื่อสินค้าที่ต้องการลบในรอบนี้
-        target_to_remove = None
+        # ใช้ list สำรองสำหรับเก็บชื่อสินค้าที่ต้องการลบ
+        items_to_delete = []
         
         for idx, (name, info) in enumerate(st.session_state.cart.items(), 1):
             qty = info["qty"]
@@ -236,18 +236,20 @@ if st.session_state.cart:
                         st.session_state.cart[name]["qty"] -= 1
                         st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
                     else:
-                        target_to_remove = name
+                        items_to_delete.append(name)
                     st.rerun()
             with c_item4:
                 if st.button("❌ ลบ", key=f"del_{name}"):
-                    target_to_remove = name
+                    items_to_delete.append(name)
                     st.rerun()
                     
             total_price += item_tot
             
-        # ดำเนินการลบสินค้าออกทันทีถ้ามีการกดปุ่มลบหรือลดจนหมด
-        if target_to_remove and target_to_remove in st.session_state.cart:
-            del st.session_state.cart[target_to_remove]
+        # ลบรายการที่ถูกกดออกจาก session_state ทันที
+        if items_to_delete:
+            for d_name in items_to_delete:
+                if d_name in st.session_state.cart:
+                    del st.session_state.cart[d_name]
             st.rerun()
             
         st.write(f"---")
