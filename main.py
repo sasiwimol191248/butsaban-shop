@@ -164,7 +164,7 @@ for i, key in enumerate(product_keys):
             st.success(f"เพิ่ม '{p_name}' 1 กระถางลงตะกร้าแล้ว!")
 
 # ==========================================
-# ส่วนด้านล่าง: ตะกร้าสินค้าและระบบชำระเงิน (จัดระเบียบใหม่ กว้างขวาง ไม่รก)
+# ส่วนด้านล่าง: ตะกร้าสินค้าและระบบชำระเงิน
 # ==========================================
 if st.session_state.cart:
     st.markdown('<div class="section-box">', unsafe_allow_html=True)
@@ -212,7 +212,6 @@ if st.session_state.cart:
 
     st.markdown("---")
     
-    # ปุ่มยืนยันการสั่งซื้ออยู่ตรงกลางด้านล่างสุด สวยงามชัดเจน
     col_btn1, col_btn2, col_btn3 = st.columns([1, 1.5, 1])
     with col_btn2:
         confirm_order = st.button("✅ ยืนยันการสั่งซื้อสินค้า")
@@ -227,7 +226,6 @@ if st.session_state.cart:
             st.markdown("<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
             st.markdown(f"<p style='font-size: 21px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {final_price:,.2f} บาท</b></p>", unsafe_allow_html=True)
             
-            # --- สร้าง QR Code พร้อมเพย์ขนาดใหญ่สวยงาม ---
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)")
             qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
@@ -236,18 +234,3 @@ if st.session_state.cart:
             q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
             with q_col2:
                 st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=300)
-        else:
-            price_floor = math.floor(final_price)
-            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
----
-
-<FollowUp>
-ลองอัปเดตโค้ดนี้ดูครับ กลับมาวางไว้ด้านล่างแบบจัดระเบียบใหม่ 3 คอลัมน์ด้านบน และแบ่งครึ่งซ้าย-ขวาสำหรับตะกร้ากับสรุปยอดด้านล่าง ดูสะอาดตาและใช้งานง่ายขึ้นมากเลยใช่ไหมครับ?
-</FollowUp>
-
-<ElicitationsGroup>
-</ElicitationsGroup>
