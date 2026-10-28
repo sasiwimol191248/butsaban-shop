@@ -2,9 +2,27 @@ import streamlit as st
 import datetime
 import math
 import random
+import json
+import os
 
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
+
+# ไฟล์สำหรับบันทึกออเดอร์จริง
+ORDERS_FILE = "orders.json"
+
+def load_orders():
+    if os.path.exists(ORDERS_FILE):
+        try:
+            with open(ORDERS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return []
+    return []
+
+def save_orders(orders):
+    with open(ORDERS_FILE, "w", encoding="utf-8") as f:
+                json.dump(orders, f, ensure_ascii=False, indent=4)
 
 # ตกแต่ง CSS
 st.markdown("""
@@ -45,7 +63,6 @@ st.markdown("""
         margin: 15px 0;
     }
 
-    /* ปุ่มล้างตะกร้าสินค้าทั้งหมด (สีแดง) */
     div.stButton > button[kind="secondary"] {
         width: 100% !important;
         background-color: #e03131 !important;
@@ -64,7 +81,6 @@ st.markdown("""
         background-color: #c92a2a !important;
     }
 
-    /* ปุ่มยืนยันการสั่งซื้อสินค้า (สีเขียว) */
     div.stButton > button[kind="primary"] {
         width: 100% !important;
         background-color: #2b8a3e !important;
@@ -123,14 +139,10 @@ if "is_admin" not in st.session_state:
 if "cart" not in st.session_state:
     st.session_state.cart = {}
 if "registered_users" not in st.session_state:
-    # ฐานข้อมูลสมาชิกจำลองเริ่มต้น (มีแอดมินและลูกค้าตัวอย่าง)
     st.session_state.registered_users = {"admin": "1234", "customer01": "password"}
-if "orders_db" not in st.session_state:
-    # เก็บประวัติออเดอร์ทั้งหมดของร้านสำหรับเจ้าของร้านดู
-    st.session_state.orders_db = []
 
 # ==========================================
-# 2. หน้าล็อกอิน และ สมัครสมาชิก (Authentication)
+# 2. หน้าล็อกอิน และ สมัครสมาชิก
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("<br><br>", unsafe_allow_html=True)
@@ -141,7 +153,6 @@ if not st.session_state.logged_in:
         
         tab_login, tab_reg = st.tabs(["🔑 เข้าสู่ระบบ", "📝 สมัครสมาชิกใหม่"])
         
-        # แท็บเข้าสู่ระบบ
         with tab_login:
             with st.form("login_form"):
                 l_user = st.text_input("ชื่อผู้ใช้งาน (Username)")
@@ -161,9 +172,8 @@ if not st.session_state.logged_in:
                     else:
                         st.error("⚠️ ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง")
             
-            st.info("💡 **ทดลองเข้าสู่ระบบ:**\n* ลูกค้าทั่วไป: พิมพ์ชื่ออะไรก็ได้ (เช่น `test` / รหัสอะไรก็ได้)\n* เจ้าของร้าน (Admin): Username: `admin` | Password: `1234`")
+            st.info("💡 **ทดลองเข้าสู่ระบบ:**\n* ลูกค้าทั่วไป: พิมพ์ชื่ออะไรก็ได้\n* เจ้าของร้าน (Admin): Username: `admin` | Password: `1234`")
 
-        # แท็บสมัครสมาชิก
         with tab_reg:
             with st.form("reg_form"):
                 r_user = st.text_input("กำหนดชื่อผู้ใช้งาน (Username)")
@@ -173,10 +183,10 @@ if not st.session_state.logged_in:
                 if submit_reg:
                     if r_user != "" and r_pass != "":
                         if r_user in st.session_state.registered_users:
-                            st.error("⚠️ ชื่อผู้ใช้งานนี้มีคนใช้แล้ว กรุณาใช้ชื่ออื่น")
+                            st.error("⚠️ ชื่อผู้ใช้งานนี้มีคนใช้แล้ว")
                         else:
                             st.session_state.registered_users[r_user] = r_pass
-                            st.success("🎉 สมัครสมาชิกสำเร็จ! สามารถสลับไปที่แท็บ 'เข้าสู่ระบบ' เพื่อใช้งานได้เลย")
+                            st.success("🎉 สมัครสมาชิกสำเร็จ! สลับไปแท็บ 'เข้าสู่ระบบ' ได้เลย")
                     else:
                         st.error("⚠️ กรุณากรอกข้อมูลให้ครบถ้วน")
     
@@ -193,15 +203,17 @@ if st.session_state.is_admin:
         st.rerun()
 
     st.markdown("<h1 style='color: #ff6b6b; text-align: center;'>👑 ระบบหลังบ้านเจ้าของร้าน (Admin Dashboard)</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #aaa;'>หน้าสำหรับตรวจสอบรายการออเดอร์ที่ลูกค้าสั่งซื้อเข้ามาทั้งหมด</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #aaa;'>รายการออเดอร์ทั้งหมดจากลูกค้า (บันทึกจริงลงไฟล์ระบบ)</p>", unsafe_allow_html=True)
     st.write("---")
 
-    if not st.session_state.orders_db:
+    orders = load_orders()
+
+    if not orders:
         st.info("📭 ยังไม่มีออเดอร์สั่งซื้อสินค้าเข้ามาในระบบตอนนี้")
     else:
-        st.markdown(f"### 📦 รายการออเดอร์ทั้งหมด ({len(st.session_state.orders_db)} ออเดอร์)")
-        for idx, order in enumerate(reversed(st.session_state.orders_db), 1):
-            with st.expander(f"ออเดอร์ที่ #{len(st.session_state.orders_db) - idx + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท ({order['time']})"):
+        st.markdown(f"### 📦 รายการออเดอร์ทั้งหมด ({len(orders)} ออเดอร์)")
+        for idx, order in enumerate(reversed(orders), 1):
+            with st.expander(f"ออเดอร์ที่ #{len(orders) - idx + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท ({order['time']})"):
                 st.write(f"⏱️ **เวลาที่สั่งซื้อ:** {order['time']}")
                 st.write(f"👤 **ชื่อลูกค้า:** {order['customer']}")
                 st.write(f"💳 **ช่องชำระเงิน:** {order['pay_type']}")
@@ -210,7 +222,7 @@ if st.session_state.is_admin:
                     st.markdown(f"- {item_name} x {details['qty']} กระถาง (ราคา {details['total']:,.2f} บาท)")
                 st.markdown(f"**✨ ยอดสุทธิหลังหักส่วนลด: {order['total']:,.2f} บาท**")
                 
-    st.stop() # หยุดการทำงานไม่ให้แสดงหน้าเว็บลูกค้า
+    st.stop()
 
 # ==========================================
 # 4. หน้าเว็บไซต์หลักของลูกค้า (Customer Storefront)
@@ -221,7 +233,6 @@ if st.sidebar.button("🚪 ออกจากระบบ"):
     st.session_state.cart = {}
     st.rerun()
 
-# แสดงผลรูปแบนเนอร์
 try:
     col_h1, col_h2, col_h3 = st.columns([1, 2.5, 1])
     with col_h2:
@@ -231,7 +242,6 @@ except:
 
 st.write("---")
 
-# ข้อมูลรายการสินค้า
 products = {
     "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
     "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
@@ -241,7 +251,6 @@ products = {
     "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
-# แสดงรายการสินค้าแบบ Grid 3 คอลัมน์
 st.markdown('<div class="section-header" style="border:none; text-align:center;">📋 เมนูสินค้าแนะนำ (เลือกสินค้าที่ชื่นชอบ)</div>', unsafe_allow_html=True)
 cols = st.columns(3)
 product_keys = list(products.keys())
@@ -352,11 +361,10 @@ if st.session_state.cart:
         
         pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"))
 
-    # เมื่อลูกค้ากดปุ่มยืนยันการสั่งซื้อ บันทึกลงฐานข้อมูลร้านค้าทันที
+    # เมื่อลูกค้ากดปุ่มยืนยันการสั่งซื้อ บันทึกลงไฟล์ JSON ทันที
     if confirm_order:
         now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         
-        # บันทึกออเดอร์เข้าสู่ฐานข้อมูลหลังบ้าน (Admin Orders DB)
         new_order = {
             "time": now,
             "customer": st.session_state.username,
@@ -364,7 +372,14 @@ if st.session_state.cart:
             "total": final_price,
             "pay_type": pay_choice
         }
-        st.session_state.orders_db.append(new_order)
+        
+        # ดึงออเดอร์เดิมมาเพิ่มแล้วบันทึกเก็บลงไฟล์
+        orders = load_orders()
+        orders.append(new_order)
+        save_orders(orders)
+        
+        # เคลียร์ตะกร้าหลังสั่งซื้อสำเร็จ
+        st.session_state.cart = {}
         
         st.markdown("---")
         st.balloons()
