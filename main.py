@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS ปรับสีตัวอักษรและสัญลักษณ์ในปุ่มตะกร้าให้เป็นสีขาวเด่นชัด
+# ตกแต่ง CSS เปลี่ยนสีปุ่ม (+, -, x) ให้เป็นสีสว่าง มองเห็นชัดเจน
 st.markdown("""
     <style>
     html, body, [class*="css"] {
@@ -45,17 +45,24 @@ st.markdown("""
         margin: 15px 0;
     }
     
-    /* ปรับปุ่มจัดการสินค้าในตะกร้า (+, -, x) ให้ตัวอักษรเป็นสีขาวเด่นชัด */
+    /* 🔘 ปรับปุ่มบวก ลบ กากบาท ในตะกร้าให้เป็นสีสว่าง (สีเทาอ่อน/ขาว) ตัวหนังสือเข้มเห็นชัดเจน */
     div.stButton > button {
-        color: white !important;
+        background-color: #f1f3f5 !important;
+        color: #212529 !important;
+        border: 1px solid #ced4da !important;
+        font-weight: bold !important;
+    }
+    div.stButton > button:hover {
+        background-color: #e9ecef !important;
+        color: #000000 !important;
     }
     div.stButton > button p {
-        color: white !important;
+        color: #212529 !important;
         font-size: 18px !important;
         font-weight: bold !important;
     }
 
-    /* ปุ่มล้างตะกร้าสินค้าทั้งหมด (สีแดง) */
+    /* 🔴 ปุ่มล้างตะกร้าสินค้าทั้งหมด (สีแดง) */
     div.stButton > button[kind="secondary"] {
         width: 100% !important;
         background-color: #e03131 !important;
@@ -66,12 +73,14 @@ st.markdown("""
         padding: 0.7rem !important;
         font-size: 18px !important;
     }
-    div.stButton > button[kind="secondary"]:hover {
-        background-color: #c92a2a !important;
+    div.stButton > button[kind="secondary"] p {
         color: white !important;
     }
+    div.stButton > button[kind="secondary"]:hover {
+        background-color: #c92a2a !important;
+    }
 
-    /* ปุ่มยืนยันการสั่งซื้อสินค้า (สีเขียว) */
+    /* 🟢 ปุ่มยืนยันการสั่งซื้อสินค้า (สีเขียว) */
     div.stButton > button[kind="primary"] {
         width: 100% !important;
         background-color: #2b8a3e !important;
@@ -82,9 +91,11 @@ st.markdown("""
         padding: 0.7rem !important;
         font-size: 18px !important;
     }
+    div.stButton > button[kind="primary"] p {
+        color: white !important;
+    }
     div.stButton > button[kind="primary"]:hover {
         background-color: #237032 !important;
-        color: white !important;
     }
 
     .section-box {
@@ -301,3 +312,18 @@ if st.session_state.cart:
             st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
             st.markdown("<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
             st.markdown(f"<p style='font-size: 21px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {final_price:,.2f} บาท</b></p>", unsafe_allow_html=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)")
+            qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
+            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_text}"
+            
+            q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
+            with q_col2:
+                st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=300)
+        else:
+            price_floor = math.floor(final_price)
+            st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
+            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {final_price:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
