@@ -8,21 +8,26 @@ import os
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ไฟล์สำหรับบันทึกออเดอร์จริง
+# ไฟล์สำหรับบันทึกข้อมูล
 ORDERS_FILE = "orders.json"
+USERS_FILE = "users.json"
 
-def load_orders():
-    if os.path.exists(ORDERS_FILE):
+def load_json(filename, default_data):
+    if os.path.exists(filename):
         try:
-            with open(ORDERS_FILE, "r", encoding="utf-8") as f:
+            with open(filename, "r", encoding="utf-8") as f:
                 return json.load(f)
         except:
-            return []
-    return []
+            return default_data
+    return default_data
 
-def save_orders(orders):
-    with open(ORDERS_FILE, "w", encoding="utf-8") as f:
-                json.dump(orders, f, ensure_ascii=False, indent=4)
+def save_json(filename, data):
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+# โหลดข้อมูลผู้ใช้และออเดอร์จากไฟล์ (ถ้ายังไม่มีใช้ค่าเริ่มต้น)
+initial_users = {"admin": "1234", "customer01": "password"}
+registered_users = load_json(USERS_FILE, initial_users)
 
 # ตกแต่ง CSS
 st.markdown("""
@@ -138,8 +143,6 @@ if "is_admin" not in st.session_state:
     st.session_state.is_admin = False
 if "cart" not in st.session_state:
     st.session_state.cart = {}
-if "registered_users" not in st.session_state:
-    st.session_state.registered_users = {"admin": "1234", "customer01": "password"}
 
 # ==========================================
 # 2. หน้าล็อกอิน และ สมัครสมาชิก
@@ -160,7 +163,8 @@ if not st.session_state.logged_in:
                 submit_login = st.form_submit_button("🚀 เข้าสู่ระบบ")
                 
                 if submit_login:
-                    if l_user in st.session_state.registered_users and st.session_state.registered_users[l_user] == l_pass:
+                    users = load_json(USERS_FILE, initial_users)
+                    if l_user in users and users[l_user] == l_pass:
                         st.session_state.logged_in = True
                         st.session_state.username = l_user
                         if l_user == "admin":
@@ -172,7 +176,7 @@ if not st.session_state.logged_in:
                     else:
                         st.error("⚠️ ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง")
             
-            st.info("💡 **ทดลองเข้าสู่ระบบ:**\n* ลูกค้าทั่วไป: พิมพ์ชื่ออะไรก็ได้\n* เจ้าของร้าน (Admin): Username: `admin` | Password: `1234`")
+            st.info("💡 **ทดลองเข้าสู่ระบบ:**\n* ลูกค้าทั่วไป: สมัครใหม่ หรือพิมพ์ชื่ออะไรก็ได้\n* เจ้าของร้าน (Admin): Username: `admin` | Password: `1234`")
 
         with tab_reg:
             with st.form("reg_form"):
@@ -182,11 +186,13 @@ if not st.session_state.logged_in:
                 
                 if submit_reg:
                     if r_user != "" and r_pass != "":
-                        if r_user in st.session_state.registered_users:
+                        users = load_json(USERS_FILE, initial_users)
+                        if r_user in users:
                             st.error("⚠️ ชื่อผู้ใช้งานนี้มีคนใช้แล้ว")
                         else:
-                            st.session_state.registered_users[r_user] = r_pass
-                            st.success("🎉 สมัครสมาชิกสำเร็จ! สลับไปแท็บ 'เข้าสู่ระบบ' ได้เลย")
+                            users[r_user] = r_pass
+                            save_json(USERS_FILE, users)
+                            st.success("🎉 สมัครสมาชิกสำเร็จ! สลับไปแท็บ 'เข้าสู่ระบบ' เพื่อใช้งานได้เลย")
                     else:
                         st.error("⚠️ กรุณากรอกข้อมูลให้ครบถ้วน")
     
@@ -206,7 +212,7 @@ if st.session_state.is_admin:
     st.markdown("<p style='text-align: center; color: #aaa;'>รายการออเดอร์ทั้งหมดจากลูกค้า (บันทึกจริงลงไฟล์ระบบ)</p>", unsafe_allow_html=True)
     st.write("---")
 
-    orders = load_orders()
+    orders = load_json(ORDERS_FILE, [])
 
     if not orders:
         st.info("📭 ยังไม่มีออเดอร์สั่งซื้อสินค้าเข้ามาในระบบตอนนี้")
@@ -373,12 +379,10 @@ if st.session_state.cart:
             "pay_type": pay_choice
         }
         
-        # ดึงออเดอร์เดิมมาเพิ่มแล้วบันทึกเก็บลงไฟล์
-        orders = load_orders()
+        orders = load_json(ORDERS_FILE, [])
         orders.append(new_order)
-        save_orders(orders)
+        save_json(ORDERS_FILE, orders)
         
-        # เคลียร์ตะกร้าหลังสั่งซื้อสำเร็จ
         st.session_state.cart = {}
         
         st.markdown("---")
