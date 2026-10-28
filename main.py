@@ -267,38 +267,3 @@ if st.session_state.cart:
         st.markdown('<div class="section-header">💳 สรุปยอด & ส่วนลดพิเศษ</div>', unsafe_allow_html=True)
         
         total_price = sum(info["total"] for info in st.session_state.cart.values())
-        
-        if "discount_percent" not in st.session_state:
-            st.session_state.discount_percent = random.randint(5, 20)
-            st.session_state.luck_msg = random.choice([
-                "ยินดีด้วย! คุณได้รับส่วนลดพิเศษประจำวัน",
-                "ขอบคุณที่สนับสนุนร้าน Butsaban ขอให้มีความสุขมากๆ นะคะ",
-                "ดอกไม้น่ารักๆ เหมาะกับวันพิเศษของคุณ!"
-            ])
-            
-        disc_pct = st.session_state.discount_percent
-        luck_msg = st.session_state.luck_msg
-        disc_amount = total_price * (disc_pct / 100)
-        final_price = total_price - disc_amount
-        
-        st.success(f"🎁 **ข้อความจากร้าน:** {luck_msg}")
-        st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🏷️ <b>ส่วนลด:</b> {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)</p>", unsafe_allow_html=True)
-        st.markdown(f"<h3 style='color: #ff6b6b;'>✨ ยอดสุทธิที่ต้องชำระ: <b>{final_price:,.2f} บาท</b></h3>", unsafe_allow_html=True)
-        
-        pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"))
-
-    if confirm_order:
-        st.markdown("---")
-        now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        st.balloons()
-        st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกรายการเมื่อ: {now}")
-        
-        if "1." in pay_choice:
-            st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
-            st.markdown("<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='font-size: 21px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {final_price:,.2f} บาท</b></p>", unsafe_allow_html=True)
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)")
-            qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
-            qr_url = f"
