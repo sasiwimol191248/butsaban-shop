@@ -6,7 +6,7 @@ import random
 # ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="Butsaban - ร้านดอกไม้ลวดกำมะหยี่", page_icon="🌹", layout="wide")
 
-# ตกแต่ง CSS ให้สะอาดตา สบายตา พื้นที่กว้างขวาง
+# ตกแต่ง CSS ให้ฟอนต์ตัวเลือกชำระเงินใหญ่เท่ากับรายการตะกร้าสินค้า
 st.markdown("""
     <style>
     html, body, [class*="css"] {
@@ -59,7 +59,6 @@ st.markdown("""
         background-color: #c92a2a;
         color: white;
     }
-    /* กรอบส่วนล่างแบบสะอาดตา กว้างขวาง */
     .section-box {
         background-color: #181818;
         padding: 30px;
@@ -76,6 +75,17 @@ st.markdown("""
         margin-bottom: 20px !important;
         border-bottom: 2px solid #333;
         padding-bottom: 10px;
+    }
+    
+    /* 🔍 ขยายขนาดฟอนต์หัวข้อและตัวเลือก Radio ช่องชำระเงินให้ใหญ่เท่าตะกร้าสินค้า */
+    .stRadio label {
+        font-size: 19px !important;
+        font-weight: bold !important;
+        color: #ffffff !important;
+    }
+    .stRadio div[role="radiogroup"] label p {
+        font-size: 19px !important;
+        color: #ffffff !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -228,9 +238,4 @@ if st.session_state.cart:
             
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("#### 📱 สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)")
-            qr_text = f"PromptPay:0634729594:Amount:{final_price:.2f}"
-            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_text}"
-            
-            q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
-            with q_col2:
-                st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=300)
+            qr_text = f"PromptPay
