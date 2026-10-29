@@ -188,13 +188,13 @@ if st.session_state.is_admin:
         st.rerun()
 
     st.markdown("<h1 style='color: #ff6b6b; text-align: center;'>👑 ระบบหลังบ้านเจ้าของร้าน (Admin Dashboard)</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #aaa;'>จัดการออเดอร์ และตรวจสอบที่อยู่จัดส่งของลูกค้า</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #aaa;'>จัดการออเดอร์ และตรวจสอบรายการพรีออเดอร์หลายแบบของลูกค้า</p>", unsafe_allow_html=True)
     st.write("---")
 
     if not st.session_state.orders_db:
         st.info("📭 ยังไม่มีออเดอร์หรือคำขอจองสินค้าเข้ามาในระบบตอนนี้")
     else:
-        st.markdown(f"### 📦 รายการออเดอร์และที่อยู่จัดส่งทั้งหมด ({len(st.session_state.orders_db)} รายการ)")
+        st.markdown(f"### 📦 รายการออเดอร์และคิวจองทั้งหมด ({len(st.session_state.orders_db)} รายการ)")
         
         for i, order in enumerate(reversed(st.session_state.orders_db)):
             real_index = len(st.session_state.orders_db) - 1 - i
@@ -219,7 +219,7 @@ if st.session_state.is_admin:
                     st.markdown(f"🏠 **ที่อยู่สำหรับจัดส่ง:** <br><span style='color: #fffa65;'>{address}</span>", unsafe_allow_html=True)
                     st.write(f"💳 **ช่องชำระเงิน:** {order['pay_type']}")
                     st.markdown(f"📌 **สถานะ:** {status_badge}", unsafe_allow_html=True)
-                    st.write("🛒 **รายการสินค้า:**")
+                    st.write("🛒 **รายการสินค้าที่สั่งจอง:**")
                     for item_name, details in order['items'].items():
                         st.markdown(f"- {item_name} x {details['qty']} กระถาง (ราคา {details['total']:,.2f} บาท)")
                     st.markdown(f"**✨ ยอดสุทธิ: {order['total']:,.2f} บาท**")
@@ -266,7 +266,7 @@ products = {
     "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
-tab_retail, tab_bulk = st.tabs(["🛍️ สั่งซื้อปลีก (ทั่วไป)", "📦 ระบบจองคิวจำนวนมาก (Pre-order สำหรับงานใหญ่)"])
+tab_retail, tab_bulk = st.tabs(["🛍️ สั่งซื้อปลีก (ทั่วไป)", "📦 ระบบจองคิวจำนวนมาก (Pre-order เลือกได้หลายแบบ)"])
 
 with tab_retail:
     st.markdown('<div class="section-header" style="border:none; text-align:center;">📋 รายการสินค้าแนะนำ (สำหรับซื้อจำนวนน้อย)</div>', unsafe_allow_html=True)
@@ -339,7 +339,6 @@ with tab_retail:
             st.write(f"---")
             st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
             
-            # ช่องกรอกข้อมูลจัดส่งสำหรับซื้อปลีก
             st.markdown("#### 🚚 ข้อมูลสำหรับจัดส่งสินค้า (ซื้อปลีก)")
             retail_phone = st.text_input("📞 เบอร์โทรศัพท์ติดต่อ", key="r_phone")
             retail_address = st.text_area("🏠 ที่อยู่สำหรับจัดส่งสินค้าอย่างละเอียด", key="r_addr")
@@ -356,93 +355,3 @@ with tab_retail:
                 st.rerun()
 
         with cart_col2:
-            st.markdown('<div class="section-header">💳 สรุปยอดสั่งซื้อปลีก</div>', unsafe_allow_html=True)
-            total_price = sum(info["total"] for info in st.session_state.cart.values())
-            
-            if "discount_percent" not in st.session_state:
-                st.session_state.discount_percent = random.randint(5, 20)
-                st.session_state.luck_msg = "ยินดีด้วย! คุณได้รับส่วนลดพิเศษประจำวัน"
-                
-            disc_pct = st.session_state.discount_percent
-            disc_amount = total_price * (disc_pct / 100)
-            final_price = total_price - disc_amount
-            
-            st.success(f"🎁 {st.session_state.luck_msg}")
-            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🏷️ <b>ส่วนลด:</b> {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)</p>", unsafe_allow_html=True)
-            st.markdown(f"<h3 style='color: #ff6b6b;'>✨ ยอดสุทธิ: <b>{final_price:,.2f} บาท</b></h3>", unsafe_allow_html=True)
-            pay_choice = st.radio("ช่องทางชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"), key="pay_retail")
-
-        if confirm_order:
-            if retail_phone.strip() == "" or retail_address.strip() == "":
-                st.error("⚠️ กรุณากรอกเบอร์โทรศัพท์และที่อยู่จัดส่งให้ครบถ้วนครับ")
-            else:
-                thai_now = get_thai_time()
-                formatted_due_date = retail_due_date.strftime("%d/%m/%Y")
-                
-                new_order = {
-                    "type": "🛍️ ซื้อปลีกทั่วไป",
-                    "time": thai_now,
-                    "due_date": formatted_due_date,
-                    "phone": retail_phone,
-                    "address": retail_address,
-                    "customer": st.session_state.username,
-                    "items": st.session_state.cart.copy(),
-                    "total": final_price,
-                    "pay_type": pay_choice,
-                    "status": "⏳ รอดำเนินการ"
-                }
-                st.session_state.orders_db.append(new_order)
-                st.session_state.cart = {}
-                st.balloons()
-                st.success(f"🎉 สั่งซื้อสำเร็จ! จัดส่งไปที่: {retail_address} (เวลาไทย: {thai_now})")
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-with tab_bulk:
-    st.markdown('<div class="section-box">', unsafe_allow_html=True)
-    st.markdown('<div class="section-header">📦 ระบบจองคิวจำนวนมาก (Pre-order สำหรับงานอีเวนต์/ของชำร่วย)</div>', unsafe_allow_html=True)
-    st.info("💡 สำหรับลูกค้าที่ต้องการสั่งทำปริมาณเยอะๆ (เช่น 20-100 กระถางขึ้นไป) กรอกข้อมูลด้านล่างเพื่อจองคิวล่วงหน้าได้เลยครับ")
-    
-    with st.form("bulk_order_form"):
-        b_flower = st.selectbox("เลือกประเภทดอกไม้ที่ต้องการสั่งทำ", [item["name"] for item in products.values()])
-        b_qty = st.number_input("จำนวนที่ต้องการสั่ง (กระถาง)", min_value=10, max_value=500, value=30, step=5)
-        
-        b_date = st.date_input("📅 กำหนดวันที่ต้องใช้งานจริง", value=datetime.date.today() + datetime.timedelta(days=7))
-        
-        # เพิ่มช่องกรอกที่อยู่และเบอร์โทรสำหรับ Pre-order
-        b_phone = st.text_input("📞 เบอร์โทรศัพท์ติดต่อ (Pre-order)")
-        b_address = st.text_area("🏠 ที่อยู่สำหรับจัดส่งงาน Pre-order อย่างละเอียด")
-        
-        b_note = st.text_area("รายละเอียดเพิ่มเติม / โทนสีที่ต้องการ")
-        b_pay = st.selectbox("ช่องทางชำระเงินมัดจำ", ("โอนมัดจำผ่านพร้อมเพย์", "ชำระเต็มจำนวน"))
-        
-        submit_bulk = st.form_submit_button("🚀 ส่งคำขอจองคิวจำนวนมาก (Pre-order)")
-        
-        if submit_bulk:
-            if b_phone.strip() == "" or b_address.strip() == "":
-                st.error("⚠️ กรุณากรอกเบอร์โทรศัพท์และที่อยู่จัดส่งให้ครบถ้วนครับ")
-            else:
-                unit_p = next((item["price"] for item in products.values() if item["name"] == b_flower), 80)
-                bulk_total = unit_p * b_qty
-                
-                thai_now = get_thai_time()
-                formatted_b_date = b_date.strftime("%d/%m/%Y")
-                
-                bulk_order = {
-                    "type": "📦 จองคิวจำนวนมาก (Pre-order)",
-                    "time": thai_now,
-                    "due_date": formatted_b_date,
-                    "phone": b_phone,
-                    "address": b_address,
-                    "note": b_note if b_note else "ไม่มีหมายเหตุเพิ่มเติม",
-                    "customer": st.session_state.username,
-                    "items": {b_flower: {"qty": b_qty, "price": unit_p, "total": bulk_total}},
-                    "total": bulk_total,
-                    "pay_type": b_pay,
-                    "status": "⏳ รอดำเนินการ (รอคอนเฟิร์มคิว)"
-                }
-                st.session_state.orders_db.append(bulk_order)
-                st.balloons()
-                st.success(f"🎉 ส่งคำขอจองคิว Pre-order สำเร็จ! จัดส่งไปที่: {b_address} (เวลาไทย: {thai_now})")
-
-    st.markdown('</div>', unsafe_allow_html=True)
