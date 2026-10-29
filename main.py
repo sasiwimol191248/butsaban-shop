@@ -50,13 +50,7 @@ st.markdown("""
         font-size: 24px !important;
         color: #ff8787;
         font-weight: bold;
-        margin: 10px 0;
-    }
-    .product-stock {
-        font-size: 16px !important;
-        color: #51cf66;
-        font-weight: bold;
-        margin-bottom: 15px;
+        margin: 15px 0;
     }
 
     div.stButton > button[kind="secondary"] {
@@ -139,17 +133,6 @@ if "registered_users" not in st.session_state:
 if "orders_db" not in st.session_state:
     st.session_state.orders_db = []
 
-# กำหนดสต็อกสินค้าเริ่มต้น (งานแฮนด์เมด จำกัดจำนวนทำต่อรอบ)
-if "products_stock" not in st.session_state:
-    st.session_state.products_stock = {
-        "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก", "stock": 5},
-        "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ", "stock": 4},
-        "3": {"name": "ดอกทิวลิป", "price": 69, "desc": "ความรักที่สมบูรณ์แบบและความสดใส", "stock": 6},
-        "4": {"name": "บอนไซ", "price": 119, "desc": "ความมั่นคงและอายุยืนยาว", "stock": 3},
-        "5": {"name": "ดอกบัว", "price": 99, "desc": "ความสงบและสิริมงคล", "stock": 4},
-        "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย", "stock": 5},
-    }
-
 # ==========================================
 # 2. หน้าล็อกอิน และ สมัครสมาชิก
 # ==========================================
@@ -158,7 +141,7 @@ if not st.session_state.logged_in:
     col1, col2, col3 = st.columns([1, 1.4, 1])
     with col2:
         st.markdown("<h2 style='text-align: center; color: #ff6b6b; margin-bottom: 10px; font-size: 38px;'>🌹 ร้าน Butsaban</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #aaa; font-size: 18px; margin-bottom: 20px;'>ระบบจองและสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #aaa; font-size: 18px; margin-bottom: 20px;'>ระบบสั่งซื้อดอกไม้ลวดกำมะหยี่แฮนด์เมด</p>", unsafe_allow_html=True)
         
         tab_login, tab_reg = st.tabs(["🔑 เข้าสู่ระบบ", "📝 สมัครสมาชิกใหม่"])
         
@@ -172,7 +155,10 @@ if not st.session_state.logged_in:
                     if l_user in st.session_state.registered_users and st.session_state.registered_users[l_user] == l_pass:
                         st.session_state.logged_in = True
                         st.session_state.username = l_user
-                        st.session_state.is_admin = (l_user == "admin")
+                        if l_user == "admin":
+                            st.session_state.is_admin = True
+                        else:
+                            st.session_state.is_admin = False
                         st.success("เข้าสู่ระบบสำเร็จ!")
                         st.rerun()
                     else:
@@ -189,10 +175,15 @@ if not st.session_state.logged_in:
                         if r_user in st.session_state.registered_users:
                             st.error("⚠️ ชื่อผู้ใช้งานนี้มีคนใช้แล้ว")
                         else:
+                            # บันทึกผู้ใช้ใหม่
                             st.session_state.registered_users[r_user] = r_pass
+                            # ล็อกอินเข้าสู่ระบบอัตโนมัติทันที
                             st.session_state.logged_in = True
                             st.session_state.username = r_user
-                            st.session_state.is_admin = (r_user == "admin")
+                            if r_user == "admin":
+                                st.session_state.is_admin = True
+                            else:
+                                st.session_state.is_admin = False
                             st.success("🎉 สมัครสมาชิกและเข้าสู่ระบบสำเร็จ!")
                             st.rerun()
                     else:
@@ -211,25 +202,11 @@ if st.session_state.is_admin:
         st.rerun()
 
     st.markdown("<h1 style='color: #ff6b6b; text-align: center;'>👑 ระบบหลังบ้านเจ้าของร้าน (Admin Dashboard)</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #aaa;'>จัดการออเดอร์ และตรวจสอบสต็อกสินค้าแฮนด์เมด</p>", unsafe_allow_html=True)
-    st.write("---")
-
-    # จัดการสต็อกสินค้าหลังบ้าน
-    st.markdown("### 🛠️ จัดการสต็อกสินค้า (งานแฮนด์เมด)")
-    st.info("💡 สามารถปรับเพิ่ม/ลดจำนวนสินค้าที่พร้อมทำในรอบนี้ได้ที่นี่")
-    
-    stock_cols = st.columns(3)
-    s_keys = list(st.session_state.products_stock.keys())
-    for idx, skey in enumerate(s_keys):
-        prod = st.session_state.products_stock[skey]
-        with stock_cols[idx % 3]:
-            new_stk = st.number_input(f"สต็อก: {prod['name']} (฿{prod['price']})", min_value=0, max_value=50, value=prod["stock"], key=f"admin_stk_{skey}")
-            st.session_state.products_stock[skey]["stock"] = new_stk
-
+    st.markdown("<p style='text-align: center; color: #aaa;'>จัดการออเดอร์และตรวจสอบหลักฐานการสั่งซื้อของลูกค้า</p>", unsafe_allow_html=True)
     st.write("---")
 
     if not st.session_state.orders_db:
-        st.info("📭 ยังไม่มีออเดอร์จองหรือสั่งซื้อสินค้าเข้ามาในระบบตอนนี้")
+        st.info("📭 ยังไม่มีออเดอร์สั่งซื้อสินค้าเข้ามาในระบบตอนนี้")
     else:
         st.markdown(f"### 📦 รายการออเดอร์ทั้งหมด ({len(st.session_state.orders_db)} ออเดอร์)")
         
@@ -243,11 +220,11 @@ if st.session_state.is_admin:
                 col_info1, col_info2 = st.columns([2, 1])
                 
                 with col_info1:
-                    st.write(f"⏱️ **เวลาที่จอง/สั่งซื้อ (เวลาไทย):** {order['time']}")
+                    st.write(f"⏱️ **เวลาที่สั่งซื้อ (เวลาไทย):** {order['time']}")
                     st.write(f"👤 **ชื่อลูกค้า:** {order['customer']}")
                     st.write(f"💳 **ช่องชำระเงิน:** {order['pay_type']}")
                     st.markdown(f"📌 **สถานะออเดอร์:** {status_badge}", unsafe_allow_html=True)
-                    st.write("🛒 **รายการสินค้าที่จอง:**")
+                    st.write("🛒 **รายการสินค้า:**")
                     for item_name, details in order['items'].items():
                         st.markdown(f"- {item_name} x {details['qty']} กระถาง (ราคา {details['total']:,.2f} บาท)")
                     st.markdown(f"**✨ ยอดสุทธิหลังหักส่วนลด: {order['total']:,.2f} บาท**")
@@ -283,54 +260,47 @@ try:
 except:
     st.markdown("<h1 style='text-align: center; color: #ff6b6b; font-size: 42px;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
 
-st.markdown("<p style='text-align: center; color: #aaa;'>🎨 สินค้าแฮนด์เมดทำตามคิว จำกัดจำนวนต่อรอบเพื่อความประณีตสูงสุด</p>", unsafe_allow_html=True)
 st.write("---")
 
-products = st.session_state.products_stock
+products = {
+    "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
+    "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
+    "3": {"name": "ดอกทิวลิป", "price": 69, "desc": "ความรักที่สมบูรณ์แบบและความสดใส"},
+    "4": {"name": "บอนไซ", "price": 119, "desc": "ความมั่นคงและอายุยืนยาว"},
+    "5": {"name": "ดอกบัว", "price": 99, "desc": "ความสงบและสิริมงคล"},
+    "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
+}
 
-st.markdown('<div class="section-header" style="border:none; text-align:center;">📋 รายการสินค้าแนะนำ & สต็อกคงเหลือ</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-header" style="border:none; text-align:center;">📋 รายการสินค้าแนะนำ (เลือกสินค้าที่ชื่นชอบ)</div>', unsafe_allow_html=True)
 cols = st.columns(3)
 product_keys = list(products.keys())
 
 for i, key in enumerate(product_keys):
     item = products[key]
-    stock_count = item["stock"]
-    
     with cols[i % 3]:
-        stock_color = "#51cf66" if stock_count > 0 else "#ff6b6b"
-        stock_text = f"📦 พร้อมทำรอบนี้: {stock_count} กระถาง" if stock_count > 0 else "❌ สินค้าหมดชั่วคราว (รอรอบหน้า)"
-        
         st.markdown(f"""
             <div class="product-card">
                 <div class="product-title">{item['name']}</div>
                 <div class="product-desc">{item['desc']}</div>
                 <div class="product-price">฿{item['price']} / กระถาง</div>
-                <div class="product-stock" style="color: {stock_color};">{stock_text}</div>
+                <p style="font-size: 14px; color: #888; margin: 0 0 10px 0;">รหัสสินค้า: #{key}</p>
             </div>
         """, unsafe_allow_html=True)
         
-        if stock_count > 0:
-            if st.button(f"➕ จอง / สั่งซื้อ {item['name']}", key=f"shop_btn_{key}"):
-                p_name = item["name"]
-                u_price = item["price"]
+        if st.button(f"➕ สั่งซื้อ {item['name']}", key=f"shop_btn_{key}"):
+            p_name = item["name"]
+            u_price = item["price"]
+            
+            if p_name in st.session_state.cart:
+                st.session_state.cart[p_name]["qty"] += 1
+                st.session_state.cart[p_name]["total"] = st.session_state.cart[p_name]["qty"] * u_price
+            else:
+                st.session_state.cart[p_name] = {"qty": 1, "price": u_price, "total": u_price}
                 
-                current_qty_in_cart = st.session_state.cart.get(p_name, {}).get("qty", 0)
-                
-                if current_qty_in_cart < stock_count:
-                    if p_name in st.session_state.cart:
-                        st.session_state.cart[p_name]["qty"] += 1
-                        st.session_state.cart[p_name]["total"] = st.session_state.cart[p_name]["qty"] * u_price
-                    else:
-                        st.session_state.cart[p_name] = {"qty": 1, "price": u_price, "total": u_price}
-                    st.success(f"จอง '{p_name}' เพิ่มในตะกร้าแล้ว!")
-                    st.rerun()
-                else:
-                    st.warning("⚠️ ยอดจองในตะกร้าถึงขีดจำกัดสต็อกรอบนี้แล้วครับ")
-        else:
-            st.button(f"🚫 สินค้าหมด", key=f"sold_out_{key}", disabled=True)
+            st.success(f"เพิ่ม '{p_name}' ลงในตะกร้าแล้ว!")
 
 # ==========================================
-# ตะกร้าสินค้าและระบบชำระเงิน (ระบบจอง)
+# ตะกร้าสินค้าและระบบชำระเงิน
 # ==========================================
 if st.session_state.cart:
     st.markdown('<div class="section-box">', unsafe_allow_html=True)
@@ -338,7 +308,7 @@ if st.session_state.cart:
     cart_col1, cart_col2 = st.columns([1, 1])
     
     with cart_col1:
-        st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้า / รายการจองของคุณ</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าของคุณ</div>', unsafe_allow_html=True)
         total_price = 0.0
         
         cart_items_list = list(st.session_state.cart.items())
@@ -353,14 +323,9 @@ if st.session_state.cart:
                 st.markdown(f"<p style='font-size: 18px; color: #ffffff; padding-top: 5px;'><b>{idx}.</b> {name} x {qty}<br><span style='color: #ff8787; font-size: 15px;'>({item_tot:,.2f} บาท)</span></p>", unsafe_allow_html=True)
             with c_item2:
                 if st.button("➕ เพิ่ม", key=f"cart_plus_{name}"):
-                    # เช็คสต็อกจริงก่อนบวกเพิ่ม
-                    max_stk = next((p["stock"] for p in products.values() if p["name"] == name), 99)
-                    if qty < max_stk:
-                        st.session_state.cart[name]["qty"] += 1
-                        st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
-                        st.rerun()
-                    else:
-                        st.warning("⚠️ เกินจำนวนสต็อกที่พร้อมทำในรอบนี้")
+                    st.session_state.cart[name]["qty"] += 1
+                    st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
+                    st.rerun()
             with c_item3:
                 if st.button("➖ ลด", key=f"cart_minus_{name}"):
                     if qty > 1:
@@ -386,14 +351,14 @@ if st.session_state.cart:
         with btn_col1:
             clear_cart = st.button("🗑️ ล้างตะกร้าทั้งหมด", type="secondary")
         with btn_col2:
-            confirm_order = st.button("✅ ยืนยันการจอง / สั่งซื้อสินค้า", type="primary")
+            confirm_order = st.button("✅ ยืนยันการสั่งซื้อสินค้า", type="primary")
             
         if clear_cart:
             st.session_state.cart = {}
             st.rerun()
 
     with cart_col2:
-        st.markdown('<div class="section-header">💳 สรุปยอดจอง & ส่วนลดพิเศษ</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">💳 สรุปยอด & ส่วนลดพิเศษ</div>', unsafe_allow_html=True)
         
         total_price = sum(info["total"] for info in st.session_state.cart.values())
         
@@ -401,8 +366,8 @@ if st.session_state.cart:
             st.session_state.discount_percent = random.randint(5, 20)
             st.session_state.luck_msg = random.choice([
                 "ยินดีด้วย! คุณได้รับส่วนลดพิเศษประจำวัน",
-                "ขอบคุณที่สนับสนุนงานแฮนด์เมดร้าน Butsaban",
-                "ดอกไม้น่ารักๆ ปั้นด้วยใจเพื่อคุณ!"
+                "ขอบคุณที่สนับสนุนร้าน Butsaban ขอให้มีความสุขมากๆ นะคะ",
+                "ดอกไม้น่ารักๆ เหมาะกับวันพิเศษของคุณ!"
             ])
             
         disc_pct = st.session_state.discount_percent
@@ -419,12 +384,6 @@ if st.session_state.cart:
     if confirm_order:
         thai_now = get_thai_time()
         
-        # ตัดสต็อกสินค้าจริงตามจำนวนที่สั่งจอง
-        for name, info in st.session_state.cart.items():
-            for skey, p_data in st.session_state.products_stock.items():
-                if p_data["name"] == name:
-                    st.session_state.products_stock[skey]["stock"] = max(0, p_data["stock"] - info["qty"])
-
         new_order = {
             "time": thai_now,
             "customer": st.session_state.username,
@@ -439,10 +398,10 @@ if st.session_state.cart:
         
         st.markdown("---")
         st.balloons()
-        st.success(f"🎉 จองและสั่งซื้อสำเร็จ! บันทึกคิวเมื่อเวลาไทย: {thai_now}")
+        st.success(f"🎉 สั่งซื้อสำเร็จ! บันทึกออเดอร์เมื่อเวลาไทย: {thai_now}")
         
         if "1." in pay_choice:
-            st.warning("📌 **[ ข้อมูลสำหรับโอนเงินมัดจำ / ชำระค่าสินค้า ]**")
+            st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้า ]**")
             st.markdown("<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
             st.markdown(f"<p style='font-size: 21px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {final_price:,.2f} บาท</b></p>", unsafe_allow_html=True)
             
