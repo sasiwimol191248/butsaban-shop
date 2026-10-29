@@ -122,7 +122,6 @@ if "is_admin" not in st.session_state:
     st.session_state.is_admin = False
 if "cart" not in st.session_state:
     st.session_state.cart = {}
-# อัปเดตรหัสผ่านแอดมินเป็น 12345600
 if "registered_users" not in st.session_state:
     st.session_state.registered_users = {"admin": "12345600", "ใบไผ่": "112233", "customer01": "password"}
 if "orders_db" not in st.session_state:
@@ -165,4 +164,157 @@ if not st.session_state.logged_in:
                 if submit_reg:
                     if r_user != "" and r_pass != "":
                         if r_user in st.session_state.registered_users:
-                            st.error("⚠️ ชื่อผู้ใช้งานนี้มีคนใช้
+                            st.error("⚠️ ชื่อผู้ใช้งานนี้มีคนใช้แล้ว")
+                        else:
+                            st.session_state.registered_users[r_user] = r_pass
+                            st.session_state.logged_in = True
+                            st.session_state.username = r_user
+                            st.session_state.is_admin = (r_user == "admin")
+                            st.success("🎉 สมัครสมาชิกและเข้าสู่ระบบสำเร็จ!")
+                            st.rerun()
+                    else:
+                        st.error("⚠️ กรุณากรอกข้อมูลให้ครบถ้วน")
+    
+    st.stop()
+
+# ==========================================
+# 3. หน้าหลังบ้านเจ้าของร้าน (Admin Dashboard)
+# ==========================================
+if st.session_state.is_admin:
+    st.sidebar.markdown(f"👑 ผู้ดูแลระบบ: **{st.session_state.username}**")
+    if st.sidebar.button("🚪 ออกจากระบบ"):
+        st.session_state.logged_in = False
+        st.session_state.is_admin = False
+        st.rerun()
+
+    st.markdown("<h1 style='color: #ff6b6b; text-align: center;'>👑 ระบบหลังบ้านเจ้าของร้าน (Admin Dashboard)</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #aaa;'>จัดการออเดอร์ และตรวจสอบรายการพรีออเดอร์หลายแบบของลูกค้า</p>", unsafe_allow_html=True)
+    st.write("---")
+
+    if not st.session_state.orders_db:
+        st.info("📭 ยังไม่มีออเดอร์หรือคำขอจองสินค้าเข้ามาในระบบตอนนี้")
+    else:
+        st.markdown(f"### 📦 รายการออเดอร์และคิวจองทั้งหมด ({len(st.session_state.orders_db)} รายการ)")
+        
+        for i, order in enumerate(reversed(st.session_state.orders_db)):
+            real_index = len(st.session_state.orders_db) - 1 - i
+            status = order.get("status", "⏳ รอดำเนินการ")
+            order_type = order.get("type", "🛍️ ซื้อปลีกทั่วไป")
+            due_date = order.get("due_date", "-")
+            address = order.get("address", "-")
+            phone = order.get("phone", "-")
+            
+            status_badge = f"<span style='color: #ffa94d;'><b>{status}</b></span>" if "รอดำเนินการ" in status else f"<span style='color: #51cf66;'><b>{status}</b></span>"
+            due_date_display = f"<span style='color: #ff8787; font-size: 18px;'>📅 <b>กำหนดใช้งาน: {due_date}</b></span>" if due_date != "-" else "-"
+            
+            with st.expander(f"[{order_type}] ออเดอร์ที่ #{real_index + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท | ใช้งาน: {due_date} [{status}]"):
+                col_info1, col_info2 = st.columns([2, 1])
+                
+                with col_info1:
+                    st.write(f"🏷️ **ประเภท:** {order_type}")
+                    st.write(f"⏱️ **เวลาที่สั่งซื้อ (เวลาไทย):** {order['time']}")
+                    st.markdown(due_date_display, unsafe_allow_html=True)
+                    st.write(f"👤 **ชื่อลูกค้า:** {order['customer']}")
+                    st.write(f"📞 **เบอร์โทรศัพท์:** {phone}")
+                    st.markdown(f"🏠 **ที่อยู่สำหรับจัดส่ง:** <br><span style='color: #fffa65;'>{address}</span>", unsafe_allow_html=True)
+                    st.write(f"💳 **ช่องชำระเงิน:** {order['pay_type']}")
+                    st.markdown(f"📌 **สถานะ:** {status_badge}", unsafe_allow_html=True)
+                    st.write("🛒 **รายการสินค้าที่สั่งจอง:**")
+                    for item_name, details in order['items'].items():
+                        st.markdown(f"- {item_name} x {details['qty']} กระถาง (ราคา {details['total']:,.2f} บาท)")
+                    st.markdown(f"**✨ ยอดสุทธิ: {order['total']:,.2f} บาท**")
+                
+                with col_info2:
+                    st.markdown("#### ⚙️ จัดการสถานะ")
+                    if status == "⏳ รอดำเนินการ":
+                        if st.button("✅ อนุมัติ / ทำเสร็จแล้ว", key=f"btn_done_{real_index}"):
+                            st.session_state.orders_db[real_index]["status"] = "✅ ดำเนินการสำเร็จแล้ว"
+                            st.success("อัปเดตสถานะสำเร็จ!")
+                            st.rerun()
+                    else:
+                        if st.button("🔄 เปลี่ยนกลับเป็นรอดำเนินการ", key=f"btn_undo_{real_index}"):
+                            st.session_state.orders_db[real_index]["status"] = "⏳ รอดำเนินการ"
+                            st.success("เปลี่ยนสถานะกลับแล้ว")
+                            st.rerun()
+                
+    st.stop()
+
+# ==========================================
+# 4. หน้าเว็บไซต์หลักของลูกค้า (Customer Storefront)
+# ==========================================
+st.sidebar.markdown(f"👤 ลูกค้า: **{st.session_state.username}**")
+if st.sidebar.button("🚪 ออกจากระบบ"):
+    st.session_state.logged_in = False
+    st.session_state.cart = {}
+    st.rerun()
+
+try:
+    col_h1, col_h2, col_h3 = st.columns([1, 2.5, 1])
+    with col_h2:
+        st.image("header.png", use_container_width=True)
+except:
+    st.markdown("<h1 style='text-align: center; color: #ff6b6b; font-size: 42px;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
+
+st.write("---")
+
+products = {
+    "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
+    "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
+    "3": {"name": "ดอกทิวลิป", "price": 69, "desc": "ความรักที่สมบูรณ์แบบและความสดใส"},
+    "4": {"name": "บอนไซ", "price": 119, "desc": "ความมั่นคงและอายุยืนยาว"},
+    "5": {"name": "ดอกบัว", "price": 99, "desc": "ความสงบและสิริมงคล"},
+    "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
+}
+
+tab_retail, tab_bulk = st.tabs(["🛍️ สั่งซื้อปลีก (ทั่วไป)", "📦 ระบบจองคิวจำนวนมาก (Pre-order เลือกได้หลายแบบ)"])
+
+with tab_retail:
+    st.markdown('<div class="section-header" style="border:none; text-align:center;">📋 รายการสินค้าแนะนำ (สำหรับซื้อจำนวนน้อย)</div>', unsafe_allow_html=True)
+    cols = st.columns(3)
+    product_keys = list(products.keys())
+
+    for i, key in enumerate(product_keys):
+        item = products[key]
+        with cols[i % 3]:
+            st.markdown(f"""
+                <div class="product-card">
+                    <div class="product-title">{item['name']}</div>
+                    <div class="product-desc">{item['desc']}</div>
+                    <div class="product-price">฿{item['price']} / กระถาง</div>
+                    <p style="font-size: 14px; color: #888; margin: 0 0 10px 0;">รหัสสินค้า: #{key}</p>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            if st.button(f"➕ สั่งซื้อ {item['name']}", key=f"shop_btn_{key}"):
+                p_name = item["name"]
+                u_price = item["price"]
+                
+                if p_name in st.session_state.cart:
+                    st.session_state.cart[p_name]["qty"] += 1
+                    st.session_state.cart[p_name]["total"] = st.session_state.cart[p_name]["qty"] * u_price
+                else:
+                    st.session_state.cart[p_name] = {"qty": 1, "price": u_price, "total": u_price}
+                    
+                st.success(f"เพิ่ม '{p_name}' ลงในตะกร้าแล้ว!")
+
+    # ตะกร้าสินค้าปลีก
+    if st.session_state.cart:
+        st.markdown('<div class="section-box">', unsafe_allow_html=True)
+        cart_col1, cart_col2 = st.columns([1, 1])
+        
+        with cart_col1:
+            st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าปลีกของคุณ</div>', unsafe_allow_html=True)
+            total_price = 0.0
+            cart_items_list = list(st.session_state.cart.items())
+            
+            for idx, (name, info) in enumerate(cart_items_list, 1):
+                qty = info["qty"]
+                u_price = info["price"]
+                item_tot = info["total"]
+                
+                c_item1, c_item2, c_item3, c_item4 = st.columns([1.8, 1, 1, 1])
+                with c_item1:
+                    st.markdown(f"<p style='font-size: 18px; color: #ffffff; padding-top: 5px;'><b>{idx}.</b> {name} x {qty}<br><span style='color: #ff8787; font-size: 15px;'>({item_tot:,.2f} บาท)</span></p>", unsafe_allow_html=True)
+                with c_item2:
+                    if st.button("➕ เพิ่ม", key=f"cart_plus_{name}"):
+                        st.
