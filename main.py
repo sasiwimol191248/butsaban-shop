@@ -395,8 +395,7 @@ with tab_retail:
                 st.success(f"🎉 สั่งซื้อสำเร็จ! จัดส่งไปที่: {retail_address} (เวลาไทย: {thai_now})")
 
         # แสดง QR Code หรือข้อมูลชำระเงินทันทีหลังยืนยันออเดอร์ปลีก
-        if not st.session_state.orders_db == []:
-            # เช็คออเดอร์ล่าสุดของลูกค้าคนนี้
+        if st.session_state.orders_db:
             user_orders = [o for o in st.session_state.orders_db if o["customer"] == st.session_state.username]
             if user_orders:
                 latest_order = user_orders[-1]
@@ -478,5 +477,27 @@ with tab_bulk:
                 st.session_state.orders_db.append(bulk_order)
                 st.balloons()
                 st.success(f"🎉 ส่งคำขอจองคิว Pre-order หลายแบบสำเร็จ! ยอดรวมสุทธิ: {total_bulk_price:,.2f} บาท (เวลาไทย: {thai_now})")
+
+    # แสดง QR Code หรือข้อมูลชำระเงินทันทีหลังกดส่ง Pre-order
+    if st.session_state.orders_db:
+        user_orders = [o for o in st.session_state.orders_db if o["customer"] == st.session_state.username and "Pre-order" in o["type"]]
+        if user_orders:
+            latest_bulk = user_orders[-1]
+            if "โอนมัดจำ" in latest_bulk["pay_type"]:
+                st.markdown("---")
+                st.warning("📌 **[ ข้อมูลสำหรับโอนเงินมัดจำ Pre-order ]**")
+                st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size: 21px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {latest_bulk['total']:,.2f} บาท</b></p>", unsafe_allow_html=True)
+                
+                qr_text = f"PromptPay:0634729594:Amount:{latest_bulk['total']:.2f}"
+                qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_text}"
+                
+                q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
+                with q_col2:
+                    st.image(qr_url, caption="พร้อมเพย์ มัดจำ Pre-order ร้าน Butsaban", width=250)
+            else:
+                st.markdown("---")
+                st.info("📌 **[ ชำระค่าสินค้า Pre-order เต็มจำนวน ]**")
+                st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: <b>{latest_bulk['total']:,.2f} บาท</b> (ชำระตามช่องทางที่แอดมินติดต่อกลับ)</p>", unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
