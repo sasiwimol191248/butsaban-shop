@@ -188,7 +188,7 @@ if st.session_state.is_admin:
         st.rerun()
 
     st.markdown("<h1 style='color: #ff6b6b; text-align: center;'>👑 ระบบหลังบ้านเจ้าของร้าน (Admin Dashboard)</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #aaa;'>จัดการออเดอร์ และตรวจสอบรายการพรีออเดอร์หลายแบบของลูกค้า</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #aaa;'>จัดการออเดอร์ และตรวจสอบรายการออเดอร์ของลูกค้า</p>", unsafe_allow_html=True)
     st.write("---")
 
     if not st.session_state.orders_db:
@@ -207,19 +207,20 @@ if st.session_state.is_admin:
             status_badge = f"<span style='color: #ffa94d;'><b>{status}</b></span>" if "รอดำเนินการ" in status else f"<span style='color: #51cf66;'><b>{status}</b></span>"
             due_date_display = f"<span style='color: #ff8787; font-size: 18px;'>📅 <b>กำหนดใช้งาน: {due_date}</b></span>" if due_date != "-" else "-"
             
-            with st.expander(f"[{order_type}] ออเดอร์ที่ #{real_index + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท | ใช้งาน: {due_date} [{status}]"):
+            with st.expander(f"[{order_type}] ออเดอร์ที่ #{real_index + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท [{status}]"):
                 col_info1, col_info2 = st.columns([2, 1])
                 
                 with col_info1:
                     st.write(f"🏷️ **ประเภท:** {order_type}")
                     st.write(f"⏱️ **เวลาที่สั่งซื้อ (เวลาไทย):** {order['time']}")
-                    st.markdown(due_date_display, unsafe_allow_html=True)
+                    if due_date != "-":
+                        st.markdown(due_date_display, unsafe_allow_html=True)
                     st.write(f"👤 **ชื่อลูกค้า:** {order['customer']}")
                     st.write(f"📞 **เบอร์โทรศัพท์:** {phone}")
                     st.markdown(f"🏠 **ที่อยู่สำหรับจัดส่ง:** <br><span style='color: #fffa65;'>{address}</span>", unsafe_allow_html=True)
                     st.write(f"💳 **ช่องชำระเงิน:** {order['pay_type']}")
                     st.markdown(f"📌 **สถานะ:** {status_badge}", unsafe_allow_html=True)
-                    st.write("🛒 **รายการสินค้าที่สั่งจอง:**")
+                    st.write("🛒 **รายการสินค้า:**")
                     for item_name, details in order['items'].items():
                         st.markdown(f"- {item_name} x {details['qty']} กระถาง (ราคา {details['total']:,.2f} บาท)")
                     st.markdown(f"**✨ ยอดสุทธิ: {order['total']:,.2f} บาท**")
@@ -342,7 +343,6 @@ with tab_retail:
             st.markdown("#### 🚚 ข้อมูลสำหรับจัดส่งสินค้า (ซื้อปลีก)")
             retail_phone = st.text_input("📞 เบอร์โทรศัพท์ติดต่อ", key="r_phone")
             retail_address = st.text_area("🏠 ที่อยู่สำหรับจัดส่งสินค้าอย่างละเอียด", key="r_addr")
-            retail_due_date = st.date_input("📅 กำหนดวันที่ต้องการใช้งาน", value=datetime.date.today() + datetime.timedelta(days=3), key="r_date")
             
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
@@ -355,7 +355,7 @@ with tab_retail:
                 st.rerun()
 
         with cart_col2:
-            st.markdown('<div class="section-header">💳 สรุปยอดสั่งซื้อปลีก</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">💳 สรุปยอด & ชำระเงิน (ซื้อปลีก)</div>', unsafe_allow_html=True)
             total_price = sum(info["total"] for info in st.session_state.cart.values())
             
             if "discount_percent" not in st.session_state:
@@ -369,19 +369,18 @@ with tab_retail:
             st.success(f"🎁 {st.session_state.luck_msg}")
             st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🏷️ <b>ส่วนลด:</b> {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)</p>", unsafe_allow_html=True)
             st.markdown(f"<h3 style='color: #ff6b6b;'>✨ ยอดสุทธิ: <b>{final_price:,.2f} บาท</b></h3>", unsafe_allow_html=True)
-            pay_choice = st.radio("ช่องทางชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"), key="pay_retail")
+            
+            pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"), key="pay_retail")
 
         if confirm_order:
             if retail_phone.strip() == "" or retail_address.strip() == "":
                 st.error("⚠️ กรุณากรอกเบอร์โทรศัพท์และที่อยู่จัดส่งให้ครบถ้วนครับ")
             else:
                 thai_now = get_thai_time()
-                formatted_due_date = retail_due_date.strftime("%d/%m/%Y")
                 
                 new_order = {
                     "type": "🛍️ ซื้อปลีกทั่วไป",
                     "time": thai_now,
-                    "due_date": formatted_due_date,
                     "phone": retail_phone,
                     "address": retail_address,
                     "customer": st.session_state.username,
@@ -394,6 +393,30 @@ with tab_retail:
                 st.session_state.cart = {}
                 st.balloons()
                 st.success(f"🎉 สั่งซื้อสำเร็จ! จัดส่งไปที่: {retail_address} (เวลาไทย: {thai_now})")
+
+        # แสดง QR Code หรือข้อมูลชำระเงินทันทีหลังยืนยันออเดอร์ปลีก
+        if not st.session_state.orders_db == []:
+            # เช็คออเดอร์ล่าสุดของลูกค้าคนนี้
+            user_orders = [o for o in st.session_state.orders_db if o["customer"] == st.session_state.username]
+            if user_orders:
+                latest_order = user_orders[-1]
+                if "1." in latest_order["pay_type"]:
+                    st.markdown("---")
+                    st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้าปลีก ]**")
+                    st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size: 21px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {latest_order['total']:,.2f} บาท</b></p>", unsafe_allow_html=True)
+                    
+                    qr_text = f"PromptPay:0634729594:Amount:{latest_order['total']:.2f}"
+                    qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_text}"
+                    
+                    q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
+                    with q_col2:
+                        st.image(qr_url, caption="พร้อมเพย์ ร้าน Butsaban", width=250)
+                else:
+                    st.markdown("---")
+                    price_floor = math.floor(latest_order['total'])
+                    st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
+                    st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {latest_order['total']:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
