@@ -314,44 +314,4 @@ with tab_retail:
                 
                 c_item1, c_item2, c_item3, c_item4 = st.columns([1.8, 1, 1, 1])
                 with c_item1:
-                    st.markdown(f"<p style='font-size: 18px; color: #ffffff; padding-top: 5px;'><b>{idx}.</b> {name} x {qty}<br><span style='color: #ff8787; font-size: 15px;'>({item_tot:,.2f} บาท)</span></p>", unsafe_allow_html=True)
-                with c_item2:
-                    if st.button("➕ เพิ่ม", key=f"cart_plus_{name}"):
-                        st.session_state.cart[name]["qty"] += 1
-                        st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
-                        st.rerun()
-                with c_item3:
-                    if st.button("➖ ลด", key=f"cart_minus_{name}"):
-                        if qty > 1:
-                            st.session_state.cart[name]["qty"] -= 1
-                            st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
-                        else:
-                            del st.session_state.cart[name]
-                        st.rerun()
-                with c_item4:
-                    if st.button("❌ ลบ", key=f"cart_del_{name}"):
-                        if name in st.session_state.cart:
-                            del st.session_state.cart[name]
-                        st.rerun()
-                        
-                total_price += item_tot
-                
-            st.write(f"---")
-            st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
-            
-            st.markdown("#### 🚚 ข้อมูลสำหรับจัดส่งสินค้า (ซื้อปลีก)")
-            retail_phone = st.text_input("📞 เบอร์โทรศัพท์ติดต่อ", key="r_phone")
-            retail_address = st.text_area("🏠 ที่อยู่สำหรับจัดส่งสินค้าอย่างละเอียด", key="r_addr")
-            retail_due_date = st.date_input("📅 กำหนดวันที่ต้องการใช้งาน", value=datetime.date.today() + datetime.timedelta(days=3), key="r_date")
-            
-            btn_col1, btn_col2 = st.columns(2)
-            with btn_col1:
-                clear_cart = st.button("🗑️ ล้างตะกร้า", type="secondary")
-            with btn_col2:
-                confirm_order = st.button("✅ ยืนยันการสั่งซื้อปลีก", type="primary")
-                
-            if clear_cart:
-                st.session_state.cart = {}
-                st.rerun()
-
-        with cart_col2:
+                    st.markdown(f"<p style='font-size: 18px; color: #ffffff; padding-top: 5px;'><b>{idx}.</b> {name}
