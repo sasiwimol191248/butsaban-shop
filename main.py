@@ -188,24 +188,23 @@ if st.session_state.is_admin:
         st.rerun()
 
     st.markdown("<h1 style='color: #ff6b6b; text-align: center;'>👑 ระบบหลังบ้านเจ้าของร้าน (Admin Dashboard)</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #aaa;'>จัดการออเดอร์ซื้อปลีก และคำขอจองคิวจำนวนมาก (Pre-order พร้อมวันที่กำหนดใช้)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #aaa;'>จัดการออเดอร์ และตรวจสอบที่อยู่จัดส่งของลูกค้า</p>", unsafe_allow_html=True)
     st.write("---")
 
     if not st.session_state.orders_db:
         st.info("📭 ยังไม่มีออเดอร์หรือคำขอจองสินค้าเข้ามาในระบบตอนนี้")
     else:
-        st.markdown(f"### 📦 รายการออเดอร์และคิวจองทั้งหมด ({len(st.session_state.orders_db)} รายการ)")
+        st.markdown(f"### 📦 รายการออเดอร์และที่อยู่จัดส่งทั้งหมด ({len(st.session_state.orders_db)} รายการ)")
         
         for i, order in enumerate(reversed(st.session_state.orders_db)):
             real_index = len(st.session_state.orders_db) - 1 - i
             status = order.get("status", "⏳ รอดำเนินการ")
             order_type = order.get("type", "🛍️ ซื้อปลีกทั่วไป")
             due_date = order.get("due_date", "-")
-            note = order.get("note", "-")
+            address = order.get("address", "-")
+            phone = order.get("phone", "-")
             
             status_badge = f"<span style='color: #ffa94d;'><b>{status}</b></span>" if "รอดำเนินการ" in status else f"<span style='color: #51cf66;'><b>{status}</b></span>"
-            
-            # ทำป้ายเตือนวันกำหนดใช้ให้เด่นชัด
             due_date_display = f"<span style='color: #ff8787; font-size: 18px;'>📅 <b>กำหนดใช้งาน: {due_date}</b></span>" if due_date != "-" else "-"
             
             with st.expander(f"[{order_type}] ออเดอร์ที่ #{real_index + 1} | ลูกค้า: {order['customer']} | ยอด: {order['total']:,.2f} บาท | ใช้งาน: {due_date} [{status}]"):
@@ -216,7 +215,8 @@ if st.session_state.is_admin:
                     st.write(f"⏱️ **เวลาที่สั่งซื้อ (เวลาไทย):** {order['time']}")
                     st.markdown(due_date_display, unsafe_allow_html=True)
                     st.write(f"👤 **ชื่อลูกค้า:** {order['customer']}")
-                    st.write(f"💬 **หมายเหตุ/รายละเอียด:** {note}")
+                    st.write(f"📞 **เบอร์โทรศัพท์:** {phone}")
+                    st.markdown(f"🏠 **ที่อยู่สำหรับจัดส่ง:** <br><span style='color: #fffa65;'>{address}</span>", unsafe_allow_html=True)
                     st.write(f"💳 **ช่องชำระเงิน:** {order['pay_type']}")
                     st.markdown(f"📌 **สถานะ:** {status_badge}", unsafe_allow_html=True)
                     st.write("🛒 **รายการสินค้า:**")
@@ -266,7 +266,6 @@ products = {
     "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
 }
 
-# สร้างแท็บแยกระหว่าง "ซื้อปลีกทั่วไป" กับ "ระบบจองคิวจำนวนมาก (Pre-order)"
 tab_retail, tab_bulk = st.tabs(["🛍️ สั่งซื้อปลีก (ทั่วไป)", "📦 ระบบจองคิวจำนวนมาก (Pre-order สำหรับงานใหญ่)"])
 
 with tab_retail:
@@ -340,8 +339,11 @@ with tab_retail:
             st.write(f"---")
             st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
             
-            # เพิ่มช่องกรอกกำหนดวันใช้งาน สำหรับซื้อปลีกด้วย
-            retail_due_date = st.date_input("📅 กำหนดวันที่ต้องการใช้งาน (สำหรับซื้อปลีก)", value=datetime.date.today() + datetime.timedelta(days=3))
+            # ช่องกรอกข้อมูลจัดส่งสำหรับซื้อปลีก
+            st.markdown("#### 🚚 ข้อมูลสำหรับจัดส่งสินค้า (ซื้อปลีก)")
+            retail_phone = st.text_input("📞 เบอร์โทรศัพท์ติดต่อ", key="r_phone")
+            retail_address = st.text_area("🏠 ที่อยู่สำหรับจัดส่งสินค้าอย่างละเอียด", key="r_addr")
+            retail_due_date = st.date_input("📅 กำหนดวันที่ต้องการใช้งาน", value=datetime.date.today() + datetime.timedelta(days=3), key="r_date")
             
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
@@ -371,24 +373,28 @@ with tab_retail:
             pay_choice = st.radio("ช่องทางชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"), key="pay_retail")
 
         if confirm_order:
-            thai_now = get_thai_time()
-            formatted_due_date = retail_due_date.strftime("%d/%m/%Y")
-            
-            new_order = {
-                "type": "🛍️ ซื้อปลีกทั่วไป",
-                "time": thai_now,
-                "due_date": formatted_due_date,
-                "note": "สั่งซื้อผ่านหน้าตะกร้าปลีกทั่วไป",
-                "customer": st.session_state.username,
-                "items": st.session_state.cart.copy(),
-                "total": final_price,
-                "pay_type": pay_choice,
-                "status": "⏳ รอดำเนินการ"
-            }
-            st.session_state.orders_db.append(new_order)
-            st.session_state.cart = {}
-            st.balloons()
-            st.success(f"🎉 สั่งซื้อสำเร็จ! กำหนดใช้: {formatted_due_date} (เวลาไทย: {thai_now})")
+            if retail_phone.strip() == "" or retail_address.strip() == "":
+                st.error("⚠️ กรุณากรอกเบอร์โทรศัพท์และที่อยู่จัดส่งให้ครบถ้วนครับ")
+            else:
+                thai_now = get_thai_time()
+                formatted_due_date = retail_due_date.strftime("%d/%m/%Y")
+                
+                new_order = {
+                    "type": "🛍️ ซื้อปลีกทั่วไป",
+                    "time": thai_now,
+                    "due_date": formatted_due_date,
+                    "phone": retail_phone,
+                    "address": retail_address,
+                    "customer": st.session_state.username,
+                    "items": st.session_state.cart.copy(),
+                    "total": final_price,
+                    "pay_type": pay_choice,
+                    "status": "⏳ รอดำเนินการ"
+                }
+                st.session_state.orders_db.append(new_order)
+                st.session_state.cart = {}
+                st.balloons()
+                st.success(f"🎉 สั่งซื้อสำเร็จ! จัดส่งไปที่: {retail_address} (เวลาไทย: {thai_now})")
 
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -401,8 +407,11 @@ with tab_bulk:
         b_flower = st.selectbox("เลือกประเภทดอกไม้ที่ต้องการสั่งทำ", [item["name"] for item in products.values()])
         b_qty = st.number_input("จำนวนที่ต้องการสั่ง (กระถาง)", min_value=10, max_value=500, value=30, step=5)
         
-        # เพิ่มตัวเลือกวันที่ต้องการใช้งานสำหรับ Pre-order
         b_date = st.date_input("📅 กำหนดวันที่ต้องใช้งานจริง", value=datetime.date.today() + datetime.timedelta(days=7))
+        
+        # เพิ่มช่องกรอกที่อยู่และเบอร์โทรสำหรับ Pre-order
+        b_phone = st.text_input("📞 เบอร์โทรศัพท์ติดต่อ (Pre-order)")
+        b_address = st.text_area("🏠 ที่อยู่สำหรับจัดส่งงาน Pre-order อย่างละเอียด")
         
         b_note = st.text_area("รายละเอียดเพิ่มเติม / โทนสีที่ต้องการ")
         b_pay = st.selectbox("ช่องทางชำระเงินมัดจำ", ("โอนมัดจำผ่านพร้อมเพย์", "ชำระเต็มจำนวน"))
@@ -410,25 +419,30 @@ with tab_bulk:
         submit_bulk = st.form_submit_button("🚀 ส่งคำขอจองคิวจำนวนมาก (Pre-order)")
         
         if submit_bulk:
-            unit_p = next((item["price"] for item in products.values() if item["name"] == b_flower), 80)
-            bulk_total = unit_p * b_qty
-            
-            thai_now = get_thai_time()
-            formatted_b_date = b_date.strftime("%d/%m/%Y")
-            
-            bulk_order = {
-                "type": "📦 จองคิวจำนวนมาก (Pre-order)",
-                "time": thai_now,
-                "due_date": formatted_b_date,
-                "note": b_note if b_note else "ไม่มีหมายเหตุเพิ่มเติม",
-                "customer": st.session_state.username,
-                "items": {b_flower: {"qty": b_qty, "price": unit_p, "total": bulk_total}},
-                "total": bulk_total,
-                "pay_type": b_pay,
-                "status": "⏳ รอดำเนินการ (รอคอนเฟิร์มคิว)"
-            }
-            st.session_state.orders_db.append(bulk_order)
-            st.balloons()
-            st.success(f"🎉 ส่งคำขอจองคิว Pre-order สำเร็จ! กำหนดใช้งานวันที่ {formatted_b_date} (เวลาไทย: {thai_now})")
+            if b_phone.strip() == "" or b_address.strip() == "":
+                st.error("⚠️ กรุณากรอกเบอร์โทรศัพท์และที่อยู่จัดส่งให้ครบถ้วนครับ")
+            else:
+                unit_p = next((item["price"] for item in products.values() if item["name"] == b_flower), 80)
+                bulk_total = unit_p * b_qty
+                
+                thai_now = get_thai_time()
+                formatted_b_date = b_date.strftime("%d/%m/%Y")
+                
+                bulk_order = {
+                    "type": "📦 จองคิวจำนวนมาก (Pre-order)",
+                    "time": thai_now,
+                    "due_date": formatted_b_date,
+                    "phone": b_phone,
+                    "address": b_address,
+                    "note": b_note if b_note else "ไม่มีหมายเหตุเพิ่มเติม",
+                    "customer": st.session_state.username,
+                    "items": {b_flower: {"qty": b_qty, "price": unit_p, "total": bulk_total}},
+                    "total": bulk_total,
+                    "pay_type": b_pay,
+                    "status": "⏳ รอดำเนินการ (รอคอนเฟิร์มคิว)"
+                }
+                st.session_state.orders_db.append(bulk_order)
+                st.balloons()
+                st.success(f"🎉 ส่งคำขอจองคิว Pre-order สำเร็จ! จัดส่งไปที่: {b_address} (เวลาไทย: {thai_now})")
 
     st.markdown('</div>', unsafe_allow_html=True)
