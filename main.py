@@ -14,7 +14,7 @@ def get_thai_time():
     time_str = thai_time.strftime("%H:%M:%S")
     return f"{day}/{year_be} {time_str}"
 
-# ตกแต่ง CSS
+# ตกแต่ง CSS (ปรับแต่ง st.radio ให้แสดงผลเด่นชัดทั้งในคอมและแท็บเล็ต)
 st.markdown("""
     <style>
     html, body, [class*="css"] {
@@ -101,13 +101,14 @@ st.markdown("""
         padding-bottom: 10px;
     }
     
+    /* แก้ไขให้ตัวเลือก st.radio แสดงผลชัดเจนในทุกหน้าจอ แท็บเล็ตและมือถือ */
     .stRadio label {
         font-size: 20px !important;
         font-weight: bold !important;
         color: #ffffff !important;
     }
     .stRadio div[role="radiogroup"] label p {
-        font-size: 18px !important;
+        font-size: 19px !important;
         color: #ffffff !important;
     }
     </style>
