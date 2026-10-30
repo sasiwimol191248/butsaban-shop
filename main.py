@@ -298,11 +298,11 @@ with tab_retail:
                     
                 st.success(f"เพิ่ม '{p_name}' ลงในตะกร้าแล้ว!")
 
-    # ตะกร้าสินค้าปลีก (จัดโครงสร้างใหม่ให้แสดงผลเต็มจอ ไม่หลุดขอบ)
+    # ตะกร้าสินค้าปลีก
     if st.session_state.cart:
         st.markdown('<div class="section-box">', unsafe_allow_html=True)
         
-        st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าปลีกของคุณ</div>', unsafe_allow_html=True)
+        st.subheader("🛍️ ตะกร้าสินค้าปลีกของคุณ")
         total_price = 0.0
         cart_items_list = list(st.session_state.cart.items())
         
@@ -311,8 +311,7 @@ with tab_retail:
             u_price = info["price"]
             item_tot = info["total"]
             
-            # ใช้แถวแสดงชื่อสินค้าและปุ่มจัดการให้ชัดเจน
-            st.markdown(f"<p style='font-size: 20px; color: #ffffff; margin-bottom: 5px;'><b>{idx}. 🌸 {name}</b> (จำนวน: {qty} กระถาง | ราคา: {item_tot:,.2f} บาท)</p>", unsafe_allow_html=True)
+            st.write(f"**{idx}. 🌸 {name}** — จำนวน: {qty} กระถาง | ราคา: {item_tot:,.2f} บาท")
             
             c_item1, c_item2, c_item3 = st.columns([1, 1, 1])
             with c_item1:
@@ -337,10 +336,10 @@ with tab_retail:
             st.write("---")
             total_price += item_tot
             
-        st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมสินค้าทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
+        st.markdown(f"**ราคารวมสินค้าทั้งหมด:** {total_price:,.2f} บาท")
         
         st.write("---")
-        st.markdown('<div class="section-header">💳 สรุปยอด & ชำระเงิน (ซื้อปลีก)</div>', unsafe_allow_html=True)
+        st.subheader("💳 สรุปยอด & ชำระเงิน (ซื้อปลีก)")
         
         if "discount_percent" not in st.session_state:
             st.session_state.discount_percent = random.randint(5, 20)
@@ -351,13 +350,13 @@ with tab_retail:
         final_price = total_price - disc_amount
         
         st.success(f"🎁 {st.session_state.luck_msg}")
-        st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🏷️ <b>ส่วนลด:</b> {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)</p>", unsafe_allow_html=True)
+        st.write(f"🏷️ **ส่วนลด:** {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)")
         st.markdown(f"<h3 style='color: #ff6b6b;'>✨ ยอดสุทธิ: <b>{final_price:,.2f} บาท</b></h3>", unsafe_allow_html=True)
         
         pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"), key="pay_retail")
 
         st.write("---")
-        st.markdown("#### 🚚 ข้อมูลสำหรับจัดส่งสินค้า (ซื้อปลีก)")
+        st.subheader("🚚 ข้อมูลสำหรับจัดส่งสินค้า (ซื้อปลีก)")
         retail_phone = st.text_input("📞 เบอร์โทรศัพท์ติดต่อ", key="r_phone")
         retail_address = st.text_area("🏠 ที่อยู่สำหรับจัดส่งสินค้าอย่างละเอียด", key="r_addr")
         
@@ -401,7 +400,7 @@ with tab_retail:
                 if "1." in latest_order["pay_type"]:
                     st.markdown("---")
                     st.warning("📌 **[ ข้อมูลสำหรับโอนเงินชำระค่าสินค้าปลีก ]**")
-                    st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
+                    st.write("🔹 ธนาคาร: กรุงไทย (KTB)\n🔹 เลขที่บัญชี: 123-0-56789-0\n🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่\n🔹 พร้อมเพย์: 063-472-9594")
                     st.markdown(f"<p style='font-size: 21px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {latest_order['total']:,.2f} บาท</b></p>", unsafe_allow_html=True)
                     
                     qr_text = f"PromptPay:0634729594:Amount:{latest_order['total']:.2f}"
@@ -414,89 +413,13 @@ with tab_retail:
                     st.markdown("---")
                     price_floor = math.floor(latest_order['total'])
                     st.info("📌 **[ การชำระด้วยเงินสดหน้าร้าน ]**")
-                    st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: {latest_order['total']:,.2f} บาท<br>🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: <b>{price_floor} บาท</b></p>", unsafe_allow_html=True)
+                    st.write(f"🔹 ยอดชำระสุทธิ: {latest_order['total']:,.2f} บาท\n🔹 ยอดปัดเศษสำหรับชำระเงินสดพอดี: **{price_floor} บาท**")
 
         st.markdown('</div>', unsafe_allow_html=True)
 
 with tab_bulk:
     st.markdown('<div class="section-box">', unsafe_allow_html=True)
-    st.markdown('<div class="section-header">📦 ระบบจองคิวจำนวนมาก (Pre-order เลือกได้หลายแบบพร้อมกัน)</div>', unsafe_allow_html=True)
+    st.subheader("📦 ระบบจองคิวจำนวนมาก (Pre-order เลือกได้หลายแบบพร้อมกัน)")
     st.info("💡 สำหรับงานอีเวนต์หรือของชำร่วย สามารถเลือกติ๊กถูกดอกไม้หลายๆ แบบ และกำหนดจำนวนของแต่ละดอกได้เลยครับ")
     
-    with st.form("bulk_multi_order_form"):
-        st.markdown("#### 🌸 เลือกรายการดอกไม้และจำนวนที่ต้องการจองพรีออเดอร์")
-        
-        bulk_selected_items = {}
-        for p_id, p_info in products.items():
-            col_chk, col_qty = st.columns([2, 1])
-            with col_chk:
-                is_checked = st.checkbox(f"{p_info['name']} (฿{p_info['price']} / กระถาง)", key=f"bulk_chk_{p_id}")
-            with col_qty:
-                q_val = st.number_input(f"จำนวน {p_info['name']}", min_value=1, max_value=200, value=10, key=f"bulk_q_{p_id}", label_visibility="collapsed")
-            
-            if is_checked:
-                bulk_selected_items[p_info['name']] = {
-                    "qty": q_val,
-                    "price": p_info['price'],
-                    "total": q_val * p_info['price']
-                }
-        
-        st.write("---")
-        b_date = st.date_input("📅 กำหนดวันที่ต้องใช้งานจริง (Pre-order)", value=datetime.date.today() + datetime.timedelta(days=7))
-        b_phone = st.text_input("📞 เบอร์โทรศัพท์ติดต่อ (Pre-order)")
-        b_address = st.text_area("🏠 ที่อยู่สำหรับจัดส่งงาน Pre-order อย่างละเอียด")
-        b_note = st.text_area("รายละเอียดเพิ่มเติม / โทนสีที่ต้องการ")
-        b_pay = st.selectbox("ช่องทางชำระเงินมัดจำ", ("โอนมัดจำผ่านพร้อมเพย์", "ชำระเต็มจำนวน"))
-        
-        submit_bulk_multi = st.form_submit_button("🚀 ส่งคำขอจองคิว Pre-order หลายรายการ")
-        
-        if submit_bulk_multi:
-            if not bulk_selected_items:
-                st.error("⚠️ กรุณาเลือกรายการดอกไม้พรีออเดอร์อย่างน้อย 1 ชนิดครับ")
-            elif b_phone.strip() == "" or b_address.strip() == "":
-                st.error("⚠️ กรุณากรอกเบอร์โทรศัพท์และที่อยู่จัดส่งให้ครบถ้วนครับ")
-            else:
-                total_bulk_price = sum(item["total"] for item in bulk_selected_items.values())
-                thai_now = get_thai_time()
-                formatted_b_date = b_date.strftime("%d/%m/%Y")
-                
-                bulk_order = {
-                    "type": "📦 จองคิว Pre-order (หลายแบบ)",
-                    "time": thai_now,
-                    "due_date": formatted_b_date,
-                    "phone": b_phone,
-                    "address": b_address,
-                    "note": b_note if b_note else "ไม่มีหมายเหตุเพิ่มเติม",
-                    "customer": st.session_state.username,
-                    "items": bulk_selected_items,
-                    "total": total_bulk_price,
-                    "pay_type": b_pay,
-                    "status": "⏳ รอดำเนินการ (รอคอนเฟิร์มคิว)"
-                }
-                st.session_state.orders_db.append(bulk_order)
-                st.balloons()
-                st.success(f"🎉 ส่งคำขอจองคิว Pre-order หลายแบบสำเร็จ! ยอดรวมสุทธิ: {total_bulk_price:,.2f} บาท (เวลาไทย: {thai_now})")
-
-    # แสดง QR Code หรือข้อมูลชำระเงินทันทีหลังกดส่ง Pre-order
-    if st.session_state.orders_db:
-        user_orders = [o for o in st.session_state.orders_db if o["customer"] == st.session_state.username and "Pre-order" in o["type"]]
-        if user_orders:
-            latest_bulk = user_orders[-1]
-            if "โอนมัดจำ" in latest_bulk["pay_type"]:
-                st.markdown("---")
-                st.warning("📌 **[ ข้อมูลสำหรับโอนเงินมัดจำ Pre-order ]**")
-                st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ธนาคาร: กรุงไทย (KTB)<br>🔹 เลขที่บัญชี: 123-0-56789-0<br>🔹 ชื่อบัญชี: ร้าน Butsaban ดอกไม้ลวดกำมะหยี่<br>🔹 พร้อมเพย์: 063-472-9594</p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='font-size: 21px; color: #ff8787;'>🔹 <b>ยอดโอนสุทธิ: {latest_bulk['total']:,.2f} บาท</b></p>", unsafe_allow_html=True)
-                
-                qr_text = f"PromptPay:0634729594:Amount:{latest_bulk['total']:.2f}"
-                qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_text}"
-                
-                q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
-                with q_col2:
-                    st.image(qr_url, caption="พร้อมเพย์ มัดจำ Pre-order ร้าน Butsaban", width=250)
-            else:
-                st.markdown("---")
-                st.info("📌 **[ ชำระค่าสินค้า Pre-order เต็มจำนวน ]**")
-                st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🔹 ยอดชำระสุทธิ: <b>{latest_bulk['total']:,.2f} บาท</b> (ชำระตามช่องทางที่แอดมินติดต่อกลับ)</p>", unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.form("bulk_multi
