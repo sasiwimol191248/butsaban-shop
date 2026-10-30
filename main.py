@@ -244,4 +244,142 @@ if st.session_state.is_admin:
 # 4. หน้าเว็บไซต์หลักของลูกค้า (Customer Storefront)
 # ==========================================
 st.sidebar.markdown(f"👤 ลูกค้า: **{st.session_state.username}**")
-if st.sidebar.
+if st.sidebar.button("🚪 ออกจากระบบ"):
+    st.session_state.logged_in = False
+    st.session_state.cart = {}
+    st.rerun()
+
+try:
+    col_h1, col_h2, col_h3 = st.columns([1, 2.5, 1])
+    with col_h2:
+        st.image("header.png", use_container_width=True)
+except:
+    st.markdown("<h1 style='text-align: center; color: #ff6b6b; font-size: 42px;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
+
+st.write("---")
+
+products = {
+    "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
+    "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
+    "3": {"name": "ดอกทิวลิป", "price": 69, "desc": "ความรักที่สมบูรณ์แบบและความสดใส"},
+    "4": {"name": "บอนไซ", "price": 119, "desc": "ความมั่นคงและอายุยืนยาว"},
+    "5": {"name": "ดอกบัว", "price": 99, "desc": "ความสงบและสิริมงคล"},
+    "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
+}
+
+tab_retail, tab_bulk = st.tabs(["🛍️ สั่งซื้อปลีก (ทั่วไป)", "📦 ระบบจองคิวจำนวนมาก (Pre-order เลือกได้หลายแบบ)"])
+
+with tab_retail:
+    st.markdown('<div class="section-header" style="border:none; text-align:center;">📋 รายการสินค้าแนะนำ (สำหรับซื้อจำนวนน้อย)</div>', unsafe_allow_html=True)
+    cols = st.columns(3)
+    product_keys = list(products.keys())
+
+    for i, key in enumerate(product_keys):
+        item = products[key]
+        with cols[i % 3]:
+            st.markdown(f"""
+                <div class="product-card">
+                    <div class="product-title">{item['name']}</div>
+                    <div class="product-desc">{item['desc']}</div>
+                    <div class="product-price">฿{item['price']} / กระถาง</div>
+                    <p style="font-size: 14px; color: #888; margin: 0 0 10px 0;">รหัสสินค้า: #{key}</p>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            if st.button(f"➕ สั่งซื้อ {item['name']}", key=f"shop_btn_{key}"):
+                p_name = item["name"]
+                u_price = item["price"]
+                
+                if p_name in st.session_state.cart:
+                    st.session_state.cart[p_name]["qty"] += 1
+                    st.session_state.cart[p_name]["total"] = st.session_state.cart[p_name]["qty"] * u_price
+                else:
+                    st.session_state.cart[p_name] = {"qty": 1, "price": u_price, "total": u_price}
+                    
+                st.success(f"เพิ่ม '{p_name}' ลงในตะกร้าแล้ว!")
+
+    # ตะกร้าสินค้าปลีก
+    if st.session_state.cart:
+        st.markdown('<div class="section-box">', unsafe_allow_html=True)
+        
+        st.subheader("🛍️ ตะกร้าสินค้าปลีกของคุณ")
+        total_price = 0.0
+        cart_items_list = list(st.session_state.cart.items())
+        
+        for idx, (name, info) in enumerate(cart_items_list, 1):
+            qty = info["qty"]
+            u_price = info["price"]
+            item_tot = info["total"]
+            
+            st.write(f"**{idx}. 🌸 {name}** — จำนวน: {qty} กระถาง | ราคา: {item_tot:,.2f} บาท")
+            
+            c_item1, c_item2, c_item3 = st.columns([1, 1, 1])
+            with c_item1:
+                if st.button("➕ เพิ่ม", key=f"cart_plus_{name}"):
+                    st.session_state.cart[name]["qty"] += 1
+                    st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
+                    st.rerun()
+            with c_item2:
+                if st.button("➖ ลด", key=f"cart_minus_{name}"):
+                    if qty > 1:
+                        st.session_state.cart[name]["qty"] -= 1
+                        st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
+                    else:
+                        del st.session_state.cart[name]
+                    st.rerun()
+            with c_item3:
+                if st.button("❌ ลบ", key=f"cart_del_{name}"):
+                    if name in st.session_state.cart:
+                        del st.session_state.cart[name]
+                    st.rerun()
+                    
+            st.write("---")
+            total_price += item_tot
+            
+        st.markdown(f"**ราคารวมสินค้าทั้งหมด:** {total_price:,.2f} บาท")
+        
+        st.write("---")
+        st.subheader("💳 สรุปยอด & ชำระเงิน (ซื้อปลีก)")
+        
+        if "discount_percent" not in st.session_state:
+            st.session_state.discount_percent = random.randint(5, 20)
+            st.session_state.luck_msg = "ยินดีด้วย! คุณได้รับส่วนลดพิเศษประจำวัน"
+            
+        disc_pct = st.session_state.discount_percent
+        disc_amount = total_price * (disc_pct / 100)
+        final_price = total_price - disc_amount
+        
+        st.success(f"🎁 {st.session_state.luck_msg}")
+        st.write(f"🏷️ **ส่วนลด:** {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)")
+        st.markdown(f"<h3 style='color: #ff6b6b;'>✨ ยอดสุทธิ: <b>{final_price:,.2f} บาท</b></h3>", unsafe_allow_html=True)
+        
+        pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"), key="pay_retail")
+
+        st.write("---")
+        st.subheader("🚚 ข้อมูลสำหรับจัดส่งสินค้า (ซื้อปลีก)")
+        retail_phone = st.text_input("📞 เบอร์โทรศัพท์ติดต่อ", key="r_phone")
+        retail_address = st.text_area("🏠 ที่อยู่สำหรับจัดส่งสินค้าอย่างละเอียด", key="r_addr")
+        
+        btn_col1, btn_col2 = st.columns(2)
+        with btn_col1:
+            clear_cart = st.button("🗑️ ล้างตะกร้า", type="secondary")
+        with btn_col2:
+            confirm_order = st.button("✅ ยืนยันการสั่งซื้อปลีก", type="primary")
+            
+        if clear_cart:
+            st.session_state.cart = {}
+            st.rerun()
+
+        if confirm_order:
+            if retail_phone.strip() == "" or retail_address.strip() == "":
+                st.error("⚠️ กรุณากรอกเบอร์โทรศัพท์และที่อยู่จัดส่งให้ครบถ้วนครับ")
+            else:
+                thai_now = get_thai_time()
+                
+                new_order = {
+                    "type": "🛍️ ซื้อปลีกทั่วไป",
+                    "time": thai_now,
+                    "phone": retail_phone,
+                    "address": retail_address,
+                    "customer": st.session_state.username,
+                    "items": st.
