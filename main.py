@@ -102,12 +102,12 @@ st.markdown("""
     }
     
     .stRadio label {
-        font-size: 22px !important;
+        font-size: 20px !important;
         font-weight: bold !important;
         color: #ffffff !important;
     }
     .stRadio div[role="radiogroup"] label p {
-        font-size: 20px !important;
+        font-size: 18px !important;
         color: #ffffff !important;
     }
     </style>
@@ -298,7 +298,7 @@ with tab_retail:
                     
                 st.success(f"เพิ่ม '{p_name}' ลงในตะกร้าแล้ว!")
 
-    # ตะกร้าสินค้าปลีก (ปรับให้เรียงลงมาเดี่ยวๆ บนจอแท็บเล็ต/มือถือ เพื่อไม่ให้เบียดกันตกขอบ)
+    # ตะกร้าสินค้าปลีก (จัดโครงสร้างใหม่ให้แสดงผลเต็มจอ ไม่หลุดขอบ)
     if st.session_state.cart:
         st.markdown('<div class="section-box">', unsafe_allow_html=True)
         
@@ -311,15 +311,16 @@ with tab_retail:
             u_price = info["price"]
             item_tot = info["total"]
             
-            c_item1, c_item2, c_item3, c_item4 = st.columns([1.8, 1, 1, 1])
+            # ใช้แถวแสดงชื่อสินค้าและปุ่มจัดการให้ชัดเจน
+            st.markdown(f"<p style='font-size: 20px; color: #ffffff; margin-bottom: 5px;'><b>{idx}. 🌸 {name}</b> (จำนวน: {qty} กระถาง | ราคา: {item_tot:,.2f} บาท)</p>", unsafe_allow_html=True)
+            
+            c_item1, c_item2, c_item3 = st.columns([1, 1, 1])
             with c_item1:
-                st.markdown(f"<p style='font-size: 18px; color: #ffffff; padding-top: 5px;'><b>{idx}.</b> {name} x {qty}<br><span style='color: #ff8787; font-size: 15px;'>({item_tot:,.2f} บาท)</span></p>", unsafe_allow_html=True)
-            with c_item2:
                 if st.button("➕ เพิ่ม", key=f"cart_plus_{name}"):
                     st.session_state.cart[name]["qty"] += 1
                     st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
                     st.rerun()
-            with c_item3:
+            with c_item2:
                 if st.button("➖ ลด", key=f"cart_minus_{name}"):
                     if qty > 1:
                         st.session_state.cart[name]["qty"] -= 1
@@ -327,16 +328,16 @@ with tab_retail:
                     else:
                         del st.session_state.cart[name]
                     st.rerun()
-            with c_item4:
+            with c_item3:
                 if st.button("❌ ลบ", key=f"cart_del_{name}"):
                     if name in st.session_state.cart:
                         del st.session_state.cart[name]
                     st.rerun()
                     
+            st.write("---")
             total_price += item_tot
             
-        st.write(f"---")
-        st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมสินค้าทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
         
         st.write("---")
         st.markdown('<div class="section-header">💳 สรุปยอด & ชำระเงิน (ซื้อปลีก)</div>', unsafe_allow_html=True)
