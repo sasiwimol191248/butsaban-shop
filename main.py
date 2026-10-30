@@ -244,39 +244,4 @@ if st.session_state.is_admin:
 # 4. หน้าเว็บไซต์หลักของลูกค้า (Customer Storefront)
 # ==========================================
 st.sidebar.markdown(f"👤 ลูกค้า: **{st.session_state.username}**")
-if st.sidebar.button("🚪 ออกจากระบบ"):
-    st.session_state.logged_in = False
-    st.session_state.cart = {}
-    st.rerun()
-
-try:
-    col_h1, col_h2, col_h3 = st.columns([1, 2.5, 1])
-    with col_h2:
-        st.image("header.png", use_container_width=True)
-except:
-    st.markdown("<h1 style='text-align: center; color: #ff6b6b; font-size: 42px;'>🌹 ร้าน Butsaban ดอกไม้ลวดกำมะหยี่</h1>", unsafe_allow_html=True)
-
-st.write("---")
-
-products = {
-    "1": {"name": "ดอกทานตะวัน", "price": 79, "desc": "สื่อถึงความสดใสและพลังบวก"},
-    "2": {"name": "ดอกเดซี่", "price": 79, "desc": "ความรักที่บริสุทธิ์และจริงใจ"},
-    "3": {"name": "ดอกทิวลิป", "price": 69, "desc": "ความรักที่สมบูรณ์แบบและความสดใส"},
-    "4": {"name": "บอนไซ", "price": 119, "desc": "ความมั่นคงและอายุยืนยาว"},
-    "5": {"name": "ดอกบัว", "price": 99, "desc": "ความสงบและสิริมงคล"},
-    "6": {"name": "ลาเวนเดอร์", "price": 89, "desc": "ความทรงจำที่งดงามและความผ่อนคลาย"},
-}
-
-tab_retail, tab_bulk = st.tabs(["🛍️ สั่งซื้อปลีก (ทั่วไป)", "📦 ระบบจองคิวจำนวนมาก (Pre-order เลือกได้หลายแบบ)"])
-
-with tab_retail:
-    st.markdown('<div class="section-header" style="border:none; text-align:center;">📋 รายการสินค้าแนะนำ (สำหรับซื้อจำนวนน้อย)</div>', unsafe_allow_html=True)
-    cols = st.columns(3)
-    product_keys = list(products.keys())
-
-    for i, key in enumerate(product_keys):
-        item = products[key]
-        with cols[i % 3]:
-            st.markdown(f"""
-                <div class="product-card">
-                    <div class="product-title">{item['name']}
+if st.sidebar.
