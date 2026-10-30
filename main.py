@@ -298,79 +298,77 @@ with tab_retail:
                     
                 st.success(f"เพิ่ม '{p_name}' ลงในตะกร้าแล้ว!")
 
-    # ตะกร้าสินค้าปลีก
+    # ตะกร้าสินค้าปลีก (ปรับให้เรียงลงมาเดี่ยวๆ บนจอแท็บเล็ต/มือถือ เพื่อไม่ให้เบียดกันตกขอบ)
     if st.session_state.cart:
         st.markdown('<div class="section-box">', unsafe_allow_html=True)
-        cart_col1, cart_col2 = st.columns([1, 1])
         
-        with cart_col1:
-            st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าปลีกของคุณ</div>', unsafe_allow_html=True)
-            total_price = 0.0
-            cart_items_list = list(st.session_state.cart.items())
+        st.markdown('<div class="section-header">🛍️ ตะกร้าสินค้าปลีกของคุณ</div>', unsafe_allow_html=True)
+        total_price = 0.0
+        cart_items_list = list(st.session_state.cart.items())
+        
+        for idx, (name, info) in enumerate(cart_items_list, 1):
+            qty = info["qty"]
+            u_price = info["price"]
+            item_tot = info["total"]
             
-            for idx, (name, info) in enumerate(cart_items_list, 1):
-                qty = info["qty"]
-                u_price = info["price"]
-                item_tot = info["total"]
-                
-                c_item1, c_item2, c_item3, c_item4 = st.columns([1.8, 1, 1, 1])
-                with c_item1:
-                    st.markdown(f"<p style='font-size: 18px; color: #ffffff; padding-top: 5px;'><b>{idx}.</b> {name} x {qty}<br><span style='color: #ff8787; font-size: 15px;'>({item_tot:,.2f} บาท)</span></p>", unsafe_allow_html=True)
-                with c_item2:
-                    if st.button("➕ เพิ่ม", key=f"cart_plus_{name}"):
-                        st.session_state.cart[name]["qty"] += 1
+            c_item1, c_item2, c_item3, c_item4 = st.columns([1.8, 1, 1, 1])
+            with c_item1:
+                st.markdown(f"<p style='font-size: 18px; color: #ffffff; padding-top: 5px;'><b>{idx}.</b> {name} x {qty}<br><span style='color: #ff8787; font-size: 15px;'>({item_tot:,.2f} บาท)</span></p>", unsafe_allow_html=True)
+            with c_item2:
+                if st.button("➕ เพิ่ม", key=f"cart_plus_{name}"):
+                    st.session_state.cart[name]["qty"] += 1
+                    st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
+                    st.rerun()
+            with c_item3:
+                if st.button("➖ ลด", key=f"cart_minus_{name}"):
+                    if qty > 1:
+                        st.session_state.cart[name]["qty"] -= 1
                         st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
-                        st.rerun()
-                with c_item3:
-                    if st.button("➖ ลด", key=f"cart_minus_{name}"):
-                        if qty > 1:
-                            st.session_state.cart[name]["qty"] -= 1
-                            st.session_state.cart[name]["total"] = st.session_state.cart[name]["qty"] * u_price
-                        else:
-                            del st.session_state.cart[name]
-                        st.rerun()
-                with c_item4:
-                    if st.button("❌ ลบ", key=f"cart_del_{name}"):
-                        if name in st.session_state.cart:
-                            del st.session_state.cart[name]
-                        st.rerun()
-                        
-                total_price += item_tot
-                
-            st.write(f"---")
-            st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
+                    else:
+                        del st.session_state.cart[name]
+                    st.rerun()
+            with c_item4:
+                if st.button("❌ ลบ", key=f"cart_del_{name}"):
+                    if name in st.session_state.cart:
+                        del st.session_state.cart[name]
+                    st.rerun()
+                    
+            total_price += item_tot
             
-            st.markdown("#### 🚚 ข้อมูลสำหรับจัดส่งสินค้า (ซื้อปลีก)")
-            retail_phone = st.text_input("📞 เบอร์โทรศัพท์ติดต่อ", key="r_phone")
-            retail_address = st.text_area("🏠 ที่อยู่สำหรับจัดส่งสินค้าอย่างละเอียด", key="r_addr")
+        st.write(f"---")
+        st.markdown(f"<p style='font-size: 22px; color: #ffffff;'><b>ราคารวมทั้งหมด:</b> {total_price:,.2f} บาท</p>", unsafe_allow_html=True)
+        
+        st.write("---")
+        st.markdown('<div class="section-header">💳 สรุปยอด & ชำระเงิน (ซื้อปลีก)</div>', unsafe_allow_html=True)
+        
+        if "discount_percent" not in st.session_state:
+            st.session_state.discount_percent = random.randint(5, 20)
+            st.session_state.luck_msg = "ยินดีด้วย! คุณได้รับส่วนลดพิเศษประจำวัน"
             
-            btn_col1, btn_col2 = st.columns(2)
-            with btn_col1:
-                clear_cart = st.button("🗑️ ล้างตะกร้า", type="secondary")
-            with btn_col2:
-                confirm_order = st.button("✅ ยืนยันการสั่งซื้อปลีก", type="primary")
-                
-            if clear_cart:
-                st.session_state.cart = {}
-                st.rerun()
+        disc_pct = st.session_state.discount_percent
+        disc_amount = total_price * (disc_pct / 100)
+        final_price = total_price - disc_amount
+        
+        st.success(f"🎁 {st.session_state.luck_msg}")
+        st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🏷️ <b>ส่วนลด:</b> {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)</p>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='color: #ff6b6b;'>✨ ยอดสุทธิ: <b>{final_price:,.2f} บาท</b></h3>", unsafe_allow_html=True)
+        
+        pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"), key="pay_retail")
 
-        with cart_col2:
-            st.markdown('<div class="section-header">💳 สรุปยอด & ชำระเงิน (ซื้อปลีก)</div>', unsafe_allow_html=True)
-            total_price = sum(info["total"] for info in st.session_state.cart.values())
+        st.write("---")
+        st.markdown("#### 🚚 ข้อมูลสำหรับจัดส่งสินค้า (ซื้อปลีก)")
+        retail_phone = st.text_input("📞 เบอร์โทรศัพท์ติดต่อ", key="r_phone")
+        retail_address = st.text_area("🏠 ที่อยู่สำหรับจัดส่งสินค้าอย่างละเอียด", key="r_addr")
+        
+        btn_col1, btn_col2 = st.columns(2)
+        with btn_col1:
+            clear_cart = st.button("🗑️ ล้างตะกร้า", type="secondary")
+        with btn_col2:
+            confirm_order = st.button("✅ ยืนยันการสั่งซื้อปลีก", type="primary")
             
-            if "discount_percent" not in st.session_state:
-                st.session_state.discount_percent = random.randint(5, 20)
-                st.session_state.luck_msg = "ยินดีด้วย! คุณได้รับส่วนลดพิเศษประจำวัน"
-                
-            disc_pct = st.session_state.discount_percent
-            disc_amount = total_price * (disc_pct / 100)
-            final_price = total_price - disc_amount
-            
-            st.success(f"🎁 {st.session_state.luck_msg}")
-            st.markdown(f"<p style='font-size: 18px; color: #ffffff;'>🏷️ <b>ส่วนลด:</b> {disc_pct}% (ลดไป {disc_amount:,.2f} บาท)</p>", unsafe_allow_html=True)
-            st.markdown(f"<h3 style='color: #ff6b6b;'>✨ ยอดสุทธิ: <b>{final_price:,.2f} บาท</b></h3>", unsafe_allow_html=True)
-            
-            pay_choice = st.radio("เลือกช่องทางการชำระเงิน", ("1. โอนผ่านธนาคาร /พร้อมเพย์", "2. เงินสด"), key="pay_retail")
+        if clear_cart:
+            st.session_state.cart = {}
+            st.rerun()
 
         if confirm_order:
             if retail_phone.strip() == "" or retail_address.strip() == "":
@@ -421,7 +419,7 @@ with tab_retail:
 
 with tab_bulk:
     st.markdown('<div class="section-box">', unsafe_allow_html=True)
-    st.markdown('<div class="section-header">📦 ระบบจองคิวจำนวนมาก (Pre-order เลือกสั่งได้หลายแบบพร้อมกัน)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">📦 ระบบจองคิวจำนวนมาก (Pre-order เลือกได้หลายแบบพร้อมกัน)</div>', unsafe_allow_html=True)
     st.info("💡 สำหรับงานอีเวนต์หรือของชำร่วย สามารถเลือกติ๊กถูกดอกไม้หลายๆ แบบ และกำหนดจำนวนของแต่ละดอกได้เลยครับ")
     
     with st.form("bulk_multi_order_form"):
